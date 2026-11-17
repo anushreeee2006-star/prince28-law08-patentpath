@@ -2,11 +2,11 @@
 [
   {
     "id": "001",
-    "section": "3(k)",
-    "rule": null,
-    "form": null,
+    "section": "7, 54, 135",
+    "rule": "20(i)",
+    "form": "Form 1",
     "fee_category": null,
-    "topic": "Patentability exclusion for mathematical methods, business methods, computer programmes per se and algorithms."
+    "topic": "Application for grant of patent."
   },
   {
     "id": "002",
@@ -14,30 +14,150 @@
     "rule": "13",
     "form": "Form 2",
     "fee_category": null,
-    "topic": "Provisional or complete patent specification describing the invention, its disclosure and claims."
+    "topic": "Provisional or complete patent specification."
   },
   {
     "id": "003",
-    "section": "7(1)",
-    "rule": "20(i)",
-    "form": "Form 1",
+    "section": "8",
+    "rule": "12",
+    "form": "Form 3",
     "fee_category": null,
-    "topic": "Application for grant of a patent by the person entitled to apply."
+    "topic": "Statement and undertaking regarding corresponding foreign patent applications."
   },
   {
     "id": "004",
-    "section": "11A(2)",
-    "rule": "24A",
-    "form": "Form 9",
+    "section": "53(2), 142(4)",
+    "rule": "13(6), 24B(4)(ii), 80(1A), 130",
+    "form": "Form 4",
     "fee_category": null,
-    "topic": "Request for early publication of a patent application."
+    "topic": "Request for extension of time or condonation of delay."
   },
   {
     "id": "005",
+    "section": "10(6)",
+    "rule": "13(6)",
+    "form": "Form 5",
+    "fee_category": null,
+    "topic": "Declaration as to inventorship."
+  },
+  {
+    "id": "006",
+    "section": "20(1), 20(4), 20(5)",
+    "rule": "34(1), 35(1), 36(1)",
+    "form": "Form 6",
+    "fee_category": null,
+    "topic": "Claim or request regarding change in patent applicant."
+  },
+  {
+    "id": "007",
+    "section": "25(3)",
+    "rule": "55A",
+    "form": "Form 7",
+    "fee_category": null,
+    "topic": "Notice of opposition to grant of patent."
+  },
+  {
+    "id": "008",
+    "section": "25(1)",
+    "rule": "55(1)",
+    "form": "Form 7A",
+    "fee_category": null,
+    "topic": "Representation opposing grant of patent."
+  },
+  {
+    "id": "009",
+    "section": "28(2), 28(3), 28(7)",
+    "rule": "66, 67, 68",
+    "form": "Form 8",
+    "fee_category": null,
+    "topic": "Request or claim regarding mention of inventor in a patent."
+  },
+  {
+    "id": "010",
+    "section": null,
+    "rule": "70A",
+    "form": "Form 8A",
+    "fee_category": null,
+    "topic": "Certificate of inventorship."
+  },
+  {
+    "id": "011",
+    "section": "11A",
+    "rule": "24A",
+    "form": "Form 9",
+    "fee_category": null,
+    "topic": "Request for publication of patent application."
+  },
+  {
+    "id": "012",
+    "section": "57",
+    "rule": "81",
+    "form": "Form 10",
+    "fee_category": null,
+    "topic": "Application for amendment of patent."
+  },
+  {
+    "id": "013",
+    "section": "51(1), 51(2)",
+    "rule": "76, 77",
+    "form": "Form 11",
+    "fee_category": null,
+    "topic": "Application for direction of the Controller."
+  },
+  {
+    "id": "014",
+    "section": "26(1), 52(2)",
+    "rule": "63A, 79",
+    "form": "Form 12",
+    "fee_category": null,
+    "topic": "Request for grant of patent under sections 26(1) and 52(2)."
+  },
+  {
+    "id": "015",
+    "section": "57",
+    "rule": "81",
+    "form": "Form 13",
+    "fee_category": null,
+    "topic": "Application for amendment of patent application or complete specification."
+  },
+  {
+    "id": "016",
+    "section": "57, 61, 63, 78",
+    "rule": null,
+    "form": "Form 14",
+    "fee_category": null,
+    "topic": "Notice of opposition to amendment, restoration, surrender or compulsory licence proceedings."
+  },
+  {
+    "id": "017",
+    "section": "60",
+    "rule": "84",
+    "form": "Form 15",
+    "fee_category": null,
+    "topic": "Application for restoration of patent."
+  },
+  {
+    "id": "018",
+    "section": "69",
+    "rule": "90",
+    "form": "Form 16",
+    "fee_category": null,
+    "topic": "Application for registration of title or interest in a patent."
+  },
+  {
+    "id": "019",
+    "section": "84",
+    "rule": "96",
+    "form": "Form 17",
+    "fee_category": null,
+    "topic": "Application for compulsory licence."
+  },
+  {
+    "id": "020",
     "section": "11B",
     "rule": "24B",
     "form": "Form 18",
     "fee_category": null,
-    "topic": "Request for examination of a patent application."
+    "topic": "Request for examination of patent application."
   }
 ]
