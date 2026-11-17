@@ -2,26 +2,42 @@
 [
   {
     "id": "001",
-    "section": "",
-    "rule": "",
-    "form": "",
-    "fee_category": "",
-    "topic": ""
+    "section": "3(k)",
+    "rule": null,
+    "form": null,
+    "fee_category": null,
+    "topic": "Patentability exclusion for mathematical methods, business methods, computer programmes per se and algorithms."
   },
   {
     "id": "002",
-    "section": "",
-    "rule": "",
-    "form": "",
-    "fee_category": "",
-    "topic": ""
+    "section": "10",
+    "rule": "13",
+    "form": "Form 2",
+    "fee_category": null,
+    "topic": "Provisional or complete patent specification describing the invention, its disclosure and claims."
   },
   {
     "id": "003",
-    "section": "",
-    "rule": "",
-    "form": "",
-    "fee_category": "",
-    "topic": ""
+    "section": "7(1)",
+    "rule": "20(i)",
+    "form": "Form 1",
+    "fee_category": null,
+    "topic": "Application for grant of a patent by the person entitled to apply."
+  },
+  {
+    "id": "004",
+    "section": "11A(2)",
+    "rule": "24A",
+    "form": "Form 9",
+    "fee_category": null,
+    "topic": "Request for early publication of a patent application."
+  },
+  {
+    "id": "005",
+    "section": "11B",
+    "rule": "24B",
+    "form": "Form 18",
+    "fee_category": null,
+    "topic": "Request for examination of a patent application."
   }
 ]
