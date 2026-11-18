@@ -84,3 +84,50 @@ def test_invalid_offset(client):
 
     assert response.status_code == 422
     assert response.json()["title"] == "Unprocessable Entity"
+
+
+def test_filter_by_section(client):
+    response = client.get("/v1/documents?section=10")
+
+    assert response.status_code == 200
+    assert response.json()["total"] == 1
+    assert response.json()["items"][0]["id"] == "TEST001"
+
+
+def test_filter_by_rule(client):
+    response = client.get("/v1/documents?rule=24A")
+
+    assert response.status_code == 200
+    assert response.json()["total"] == 1
+    assert response.json()["items"][0]["id"] == "TEST002"
+
+
+def test_filter_by_form(client):
+    response = client.get("/v1/documents?form=Form%209")
+
+    assert response.status_code == 200
+    assert response.json()["total"] == 1
+    assert response.json()["items"][0]["id"] == "TEST002"
+
+
+def test_multiple_filters(client):
+    response = client.get("/v1/documents?section=10&rule=13")
+
+    assert response.status_code == 200
+    assert response.json()["total"] == 1
+    assert response.json()["items"][0]["id"] == "TEST001"
+
+
+def test_invalid_filter_name(client):
+    response = client.get("/v1/documents?Bad-Name=1")
+
+    assert response.status_code == 400
+    assert response.json()["detail"] == "Invalid filter name: Bad-Name"
+
+
+def test_search_no_results(client):
+    response = client.get("/v1/documents?q=nonexistent")
+
+    assert response.status_code == 200
+    assert response.json()["total"] == 0
+    assert response.json()["items"] == []
