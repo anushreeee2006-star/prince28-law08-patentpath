@@ -10,7 +10,7 @@
 
 5. What is the difference between a provisional patent application and a complete patent application?
 
-6. What is the exact filing fee for my specific invention? 
+6. What is the exact filing fee for my specific invention?
    (Unanswerable without the required applicant and filing details.)
 
 7. What are the different patent applicant fee categories in India?

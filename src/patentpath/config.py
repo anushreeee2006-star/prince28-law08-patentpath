@@ -15,9 +15,10 @@ class Settings(BaseSettings):
     )
 
     app_name: str = "patentpath"
-    app_env: Literal["local", "ci", "production"]
+    app_env: Literal["local", "ci", "production"] = "local"
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
     data_file: Path = Path("data/sample_records.json")
+    database_url: str = "postgresql://localhost:5432/patentpath"
 
 
 @lru_cache

@@ -1,4 +1,3 @@
-
 """Shared pytest fixtures for API tests."""
 
 import json
