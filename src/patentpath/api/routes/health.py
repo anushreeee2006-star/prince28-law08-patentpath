@@ -1,7 +1,10 @@
 """Health and readiness endpoints."""
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter
 from fastapi.responses import JSONResponse
+from sqlalchemy import text
+
+from patentpath.db.session import AsyncSessionLocal
 
 router = APIRouter(tags=["Health"])
 
@@ -13,20 +16,25 @@ async def health():
 
 
 @router.get("/ready")
-async def ready(request: Request):
-    """Check whether the application is ready to serve requests."""
-    store = getattr(request.app.state, "store", None)
+async def ready():
+    """Check whether the database is ready."""
+    database_ready = False
 
-    records_loaded = store is not None and len(store.records) > 0
+    try:
+        async with AsyncSessionLocal() as session:
+            await session.execute(text("SELECT 1"))
+        database_ready = True
+    except Exception:
+        database_ready = False
 
     response = {
-        "status": "ok" if records_loaded else "not_ready",
+        "status": "ready" if database_ready else "not_ready",
         "checks": {
-            "records_loaded": records_loaded,
+            "database": database_ready,
         },
     }
 
     return JSONResponse(
-        status_code=200 if records_loaded else 503,
+        status_code=200 if database_ready else 503,
         content=response,
     )

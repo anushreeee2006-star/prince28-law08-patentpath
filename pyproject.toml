@@ -8,8 +8,11 @@ authors = [
 ]
 requires-python = ">=3.12"
 dependencies = [
+    "alembic>=1.20.1",
+    "asyncpg>=0.32.0",
     "fastapi>=0.163.1",
     "pydantic-settings>=2.16.3",
+    "sqlalchemy[asyncio]>=2.1.9",
     "uvicorn[standard]>=0.54.0",
 ]
 
@@ -39,4 +42,3 @@ testpaths = ["tests"]
 addopts = "-q"
 # Harmless notice from newer Starlette versions; hide it so real warnings stay visible
 filterwarnings = ["ignore:Using `httpx` with `starlette.testclient`"]
-
