@@ -13,8 +13,8 @@ def test_ready_endpoint(client):
 
     assert response.status_code == 200
     assert response.json() == {
-        "status": "ok",
-        "checks": {"records_loaded": True},
+        "status": "ready",
+        "checks": {"database": True},
     }
 
 

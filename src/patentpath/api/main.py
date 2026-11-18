@@ -12,8 +12,8 @@ from patentpath.api.errors import (
 from patentpath.api.middleware import RequestLoggingMiddleware
 from patentpath.api.routes import documents, health
 from patentpath.config import Settings, get_settings
+from patentpath.db.session import engine
 from patentpath.logging_setup import setup_logging
-from patentpath.store import RecordStore
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -24,10 +24,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
-        store = RecordStore(settings.data_file)
-        store.load()
-        app.state.store = store
         yield
+        await engine.dispose()
 
     app = FastAPI(
         title=settings.app_name,

@@ -2,39 +2,50 @@
 
 from typing import Any
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Request
 
-from patentpath.api.deps import StoreDependency
+from patentpath.api.deps import RepositoryDependency
+from patentpath.db.repository import FILTER_KEY
 
 router = APIRouter(prefix="/v1/documents", tags=["Documents"])
 
 
 @router.get("")
 async def list_documents(
-    store: StoreDependency,
+    repository: RepositoryDependency,
+    request: Request,
     q: str | None = None,
     limit: int = Query(default=20, ge=1, le=100),
     offset: int = Query(default=0, ge=0),
 ) -> dict[str, Any]:
-    """List documents with optional search and pagination."""
+    """List documents with optional search, filters, and pagination."""
 
-    records = store.list_records()
+    filters: dict[str, str] = {}
 
-    if q:
-        search_text = q.casefold()
-        records = [
-            record
-            for record in records
-            if search_text in " ".join(str(value) for value in record.values()).casefold()
-        ]
+    for key, value in request.query_params.items():
+        if key in {"q", "limit", "offset"}:
+            continue
 
-    total = len(records)
-    items = records[offset : offset + limit]
+        if not FILTER_KEY.fullmatch(key):
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid filter name: {key}",
+            )
+
+        filters[key] = value
+
+    total, items = await repository.list(
+        q=q,
+        filters=filters,
+        limit=limit,
+        offset=offset,
+    )
 
     return {
         "total": total,
         "limit": limit,
         "offset": offset,
+        "filters": filters,
         "items": items,
     }
 
@@ -42,11 +53,11 @@ async def list_documents(
 @router.get("/{document_id}")
 async def get_document(
     document_id: str,
-    store: StoreDependency,
+    repository: RepositoryDependency,
 ) -> dict[str, Any]:
     """Retrieve a document using its ID."""
 
-    document = store.get_record(document_id)
+    document = await repository.get(document_id)
 
     if document is None:
         raise HTTPException(
