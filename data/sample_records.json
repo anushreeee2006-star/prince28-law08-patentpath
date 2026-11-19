@@ -6,7 +6,8 @@
     "rule": "20(i)",
     "form": "Form 1",
     "fee_category": null,
-    "topic": "Application for grant of patent."
+    "topic": "Application for grant of patent.",
+    "source_url": "https://ipindia.gov.in/frontend/pdf/patents/schedules/Schedule_2.pdf"
   },
   {
     "id": "002",
@@ -14,7 +15,8 @@
     "rule": "13",
     "form": "Form 2",
     "fee_category": null,
-    "topic": "Provisional or complete patent specification."
+    "topic": "Provisional or complete patent specification.",
+    "source_url": "https://ipindia.gov.in/frontend/pdf/patents/schedules/Schedule_2.pdf"
   },
   {
     "id": "003",
@@ -22,15 +24,17 @@
     "rule": "12",
     "form": "Form 3",
     "fee_category": null,
-    "topic": "Statement and undertaking regarding corresponding foreign patent applications."
+    "topic": "Statement and undertaking regarding corresponding foreign patent applications.",
+    "source_url": "https://ipindia.gov.in/frontend/pdf/patents/schedules/Schedule_2.pdf"
   },
   {
     "id": "004",
     "section": "53(2), 142(4)",
-    "rule": "13(6), 24B(4)(ii), 80(1A), 130",
+    "rule": "12(5), 13(6), 24B(6), 24C(11), 80(1A), 130, 138",
     "form": "Form 4",
     "fee_category": null,
-    "topic": "Request for extension of time or condonation of delay."
+    "topic": "Request for extension of time or condonation of delay.",
+    "source_url": "https://ipindia.gov.in/frontend/pdf/patents/schedules/Schedule_2.pdf"
   },
   {
     "id": "005",
@@ -38,7 +42,8 @@
     "rule": "13(6)",
     "form": "Form 5",
     "fee_category": null,
-    "topic": "Declaration as to inventorship."
+    "topic": "Declaration as to inventorship.",
+    "source_url": "https://ipindia.gov.in/frontend/pdf/patents/schedules/Schedule_2.pdf"
   },
   {
     "id": "006",
@@ -46,7 +51,8 @@
     "rule": "34(1), 35(1), 36(1)",
     "form": "Form 6",
     "fee_category": null,
-    "topic": "Claim or request regarding change in patent applicant."
+    "topic": "Claim or request regarding change in patent applicant.",
+    "source_url": "https://ipindia.gov.in/frontend/pdf/patents/schedules/Schedule_2.pdf"
   },
   {
     "id": "007",
@@ -54,7 +60,8 @@
     "rule": "55A",
     "form": "Form 7",
     "fee_category": null,
-    "topic": "Notice of opposition to grant of patent."
+    "topic": "Notice of opposition to grant of patent.",
+    "source_url": "https://ipindia.gov.in/frontend/pdf/patents/schedules/Schedule_2.pdf"
   },
   {
     "id": "008",
@@ -62,7 +69,8 @@
     "rule": "55(1)",
     "form": "Form 7A",
     "fee_category": null,
-    "topic": "Representation opposing grant of patent."
+    "topic": "Representation opposing grant of patent.",
+    "source_url": "https://ipindia.gov.in/frontend/pdf/patents/schedules/Schedule_2.pdf"
   },
   {
     "id": "009",
@@ -70,7 +78,8 @@
     "rule": "66, 67, 68",
     "form": "Form 8",
     "fee_category": null,
-    "topic": "Request or claim regarding mention of inventor in a patent."
+    "topic": "Request or claim regarding mention of inventor in a patent.",
+    "source_url": "https://ipindia.gov.in/frontend/pdf/patents/schedules/Schedule_2.pdf"
   },
   {
     "id": "010",
@@ -78,23 +87,26 @@
     "rule": "70A",
     "form": "Form 8A",
     "fee_category": null,
-    "topic": "Certificate of inventorship."
+    "topic": "Certificate of inventorship.",
+    "source_url": "https://ipindia.gov.in/frontend/pdf/patents/schedules/Schedule_2.pdf"
   },
   {
     "id": "011",
-    "section": "11A",
+    "section": "11A(2)",
     "rule": "24A",
     "form": "Form 9",
     "fee_category": null,
-    "topic": "Request for publication of patent application."
+    "topic": "Request for publication of patent application.",
+    "source_url": "https://ipindia.gov.in/frontend/pdf/patents/schedules/Schedule_2.pdf"
   },
   {
     "id": "012",
-    "section": "57",
-    "rule": "81",
+    "section": "44",
+    "rule": "75",
     "form": "Form 10",
     "fee_category": null,
-    "topic": "Application for amendment of patent."
+    "topic": "Application for amendment of patent.",
+    "source_url": "https://ipindia.gov.in/frontend/pdf/patents/schedules/Schedule_2.pdf"
   },
   {
     "id": "013",
@@ -102,7 +114,8 @@
     "rule": "76, 77",
     "form": "Form 11",
     "fee_category": null,
-    "topic": "Application for direction of the Controller."
+    "topic": "Application for direction of the Controller.",
+    "source_url": "https://ipindia.gov.in/frontend/pdf/patents/schedules/Schedule_2.pdf"
   },
   {
     "id": "014",
@@ -110,23 +123,26 @@
     "rule": "63A, 79",
     "form": "Form 12",
     "fee_category": null,
-    "topic": "Request for grant of patent under sections 26(1) and 52(2)."
+    "topic": "Request for grant of patent under sections 26(1) and 52(2).",
+    "source_url": "https://ipindia.gov.in/frontend/pdf/patents/schedules/Schedule_2.pdf"
   },
   {
     "id": "015",
     "section": "57",
-    "rule": "81",
+    "rule": "81(1)",
     "form": "Form 13",
     "fee_category": null,
-    "topic": "Application for amendment of patent application or complete specification."
+    "topic": "Application for amendment of patent application or complete specification.",
+    "source_url": "https://ipindia.gov.in/frontend/pdf/patents/schedules/Schedule_2.pdf"
   },
   {
     "id": "016",
-    "section": "57, 61, 63, 78",
-    "rule": null,
+    "section": "57(4), 61(1), 63(3), 78(5), 87(2)",
+    "rule": "81(3)(b), 85(1), 87(2), 98(1), 101(3), 124",
     "form": "Form 14",
     "fee_category": null,
-    "topic": "Notice of opposition to amendment, restoration, surrender or compulsory licence proceedings."
+    "topic": "Notice of opposition to amendment, restoration, surrender or compulsory licence proceedings.",
+    "source_url": "https://ipindia.gov.in/frontend/pdf/patents/schedules/Schedule_2.pdf"
   },
   {
     "id": "017",
@@ -134,30 +150,34 @@
     "rule": "84",
     "form": "Form 15",
     "fee_category": null,
-    "topic": "Application for restoration of patent."
+    "topic": "Application for restoration of patent.",
+    "source_url": "https://ipindia.gov.in/frontend/pdf/patents/schedules/Schedule_2.pdf"
   },
   {
     "id": "018",
-    "section": "69",
-    "rule": "90",
+    "section": "69(1), 69(2)",
+    "rule": "90(1), 90(2)",
     "form": "Form 16",
     "fee_category": null,
-    "topic": "Application for registration of title or interest in a patent."
+    "topic": "Application for registration of title or interest in a patent.",
+    "source_url": "https://ipindia.gov.in/frontend/pdf/patents/schedules/Schedule_2.pdf"
   },
   {
     "id": "019",
-    "section": "84",
+    "section": "84(1), 91, 92, 92(A)",
     "rule": "96",
     "form": "Form 17",
     "fee_category": null,
-    "topic": "Application for compulsory licence."
+    "topic": "Application for compulsory licence.",
+    "source_url": "https://ipindia.gov.in/frontend/pdf/patents/schedules/Schedule_2.pdf"
   },
   {
     "id": "020",
     "section": "11B",
-    "rule": "24B",
+    "rule": "20(4)(ii), 24B(1)(i)",
     "form": "Form 18",
     "fee_category": null,
-    "topic": "Request for examination of patent application."
+    "topic": "Request for examination of patent application.",
+    "source_url": "https://ipindia.gov.in/frontend/pdf/patents/schedules/Schedule_2.pdf"
   }
 ]

@@ -1,89 +1,50 @@
-\# Engineering notes: PatentPath
+## D04 - Compose Health and Recovery Evidence
 
+### Migration
+- First run: records=20 inserted=20 updated=0 unchanged=0
+- Second run: records=20 inserted=0 updated=0 unchanged=20
 
+### API Health Checks
+- DB running: /health -> {"status":"ok"}
+- DB running: /ready -> {"status":"ready","checks":{"database":true}}
 
-\## D03 - PostgreSQL
+### Database Failure and Recovery
+- DB stopped successfully.
+- /health while DB stopped: {"status":"ok"}
+- /ready while DB stopped: {"status":"not_ready","checks":{"database":false}}
+- DB restarted successfully.
+- /ready after restart: {"status":"ready","checks":{"database":true}}
 
+## D04 - Task runner, Docker and test evidence
 
+### Docker image
+- Image: patentpath:dev
+- Disk usage: 300 MB (target: under 400 MB)
+- Content size: 70 MB
+- Runtime user: uid=999(app) gid=999(app) groups=999(app)
+- First build time: 41.6 seconds (previously recorded)
+- Incremental build after a one-line change: not measured in this run.
+- Build cache: Docker reused unchanged cached layers, avoiding rebuilding those steps.
 
-\### Migrations (upgrade, downgrade, upgrade)
+### Compose stack and migration
+- API: Up and healthy
+- PostgreSQL: Up and healthy
+- Redis: Up and healthy
+- Migration: Exited (0)
+- First seed: records=20 inserted=20 updated=0 unchanged=0
+- Subsequent seed: records=20 inserted=0 updated=0 unchanged=20
 
+### Tests and coverage
+- Unit tests: 16 passed
+- Integration tests: 7 passed
+- Combined: 23 passed
+- Unit-only coverage TOTAL: 80%
+- Unit + integration coverage TOTAL: 92%
 
+### Uncovered code review
+- middleware.py lines 25-34: exception logging path; not reached by normal successful requests, but important for logging unexpected request failures.
+- repository.py lines 33, 36-37 and 67: boolean/decimal filter conversion and invalid-filter handling; edge cases that remain useful for robust filter validation.
 
-```text
-
-downgrade -1: 1190a664399b -> 9422b52fab0b
-
-current after downgrade: 9422b52fab0b
-
-upgrade head: 9422b52fab0b -> 1190a664399b
-
-final current: 1190a664399b (head)
-
-
-
-Migration history:
-
-9422b52fab0b -> 1190a664399b (head), add gin index on metadata
-
-<base> -> 9422b52fab0b, create documents and pages tables
-
-```
-
-
-
-\### The loader is idempotent
-
-
-
-```text
-
-run 1: records=20 inserted=0 updated=0 unchanged=20
-
-run 2: records=20 inserted=0 updated=0 unchanged=20
-
-run 3: Not performed (sample data was not modified)
-
-```
-
-
-
-\### EXPLAIN for ?section=7, 54, 135
-
-
-
-```text
-
-\-- 1) Planner chooses:
-
-Seq Scan on documents
-
-Execution Time: 0.839 ms
-
-
-
-\-- 2) Seq scan disabled:
-
-Bitmap Heap Scan on documents
-
-&#x20; -> Bitmap Index Scan on ix\_documents\_metadata\_gin
-
-Execution Time: 2.024 ms
-
-```
-
-
-
-\*\*Why did the planner choose a Seq Scan?\*\*
-
-
-
-The table contains only 20 rows, so scanning the entire table is cheaper than using the GIN index.
-
-
-
-\*\*When would it switch to the GIN index?\*\*
-
-
-
-When the table grows and using the GIN index becomes cheaper than scanning the entire table.
+### Windows test execution note
+- The Windows Application Control policy blocked the Poe executable.
+- Tests and coverage were therefore run successfully through isolated uv environments using pytest directly.
