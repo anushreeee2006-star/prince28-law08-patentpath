@@ -89,3 +89,23 @@ Section 3 flags should agree with a reviewer on at least 80% of 20 invention sce
 ## Current Progress
 
 FastAPI application skeleton, PostgreSQL persistence, Docker Compose services, migrations, database loading, unit tests and integration tests are implemented.
+
+## Run locally in one command
+
+You need Docker Desktop running. From a fresh clone:
+```bash
+docker compose up --build
+```
+- API docs: [http://localhost:8000/docs](http://localhost:8000/docs)
+- Liveness: [http://localhost:8000/health](http://localhost:8000/health)
+- Readiness (checks the database): [http://localhost:8000/ready](http://localhost:8000/ready)
+Stop with `Ctrl+C`, then `docker compose down`. Add `-v` to also delete the database volume.
+
+## Develop and test
+| Task | Mac / Linux | Windows |
+|---|---|---|
+| Run the API with reload | `make dev` | `uv run poe dev` |
+| Unit tests (no network) | `make test` | `uv run poe test` |
+| Integration tests (needs `docker compose up`) | `make test-integration` | `uv run poe test-integration` |
+| Coverage report | `make cov` | `uv run poe cov` |
+| Lint and format check | `make lint` | `uv run poe lint` |

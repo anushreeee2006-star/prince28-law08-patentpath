@@ -56,3 +56,10 @@ Configured Poe tasks:
 - `cov`
 - `migrate`
 - `seed`
+
+## D04 - Verification Notes
+
+- Poe task definitions are present in `pyproject.toml`.
+- Running `uv run poe --help` on Windows was blocked by Windows Application Control (os error 4551).
+- Docker clean-clone verification is pending because the C: drive has no free space and Docker Desktop cannot start its engine.
+- The existing Docker database volume has been preserved; no volume cleanup was performed.
