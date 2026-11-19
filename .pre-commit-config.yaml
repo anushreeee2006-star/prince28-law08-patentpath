@@ -1,26 +1,55 @@
-
-# Runs on every "git commit". If a hook fails, the commit is stopped.
+﻿
 repos:
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v6.0.0
+  - repo: local
     hooks:
       - id: trailing-whitespace
+        name: trailing whitespace
+        entry: uv run --with pre-commit-hooks==6.0.0 python -m pre_commit_hooks.trailing_whitespace_fixer
+        language: system
+        types: [text]
+
       - id: end-of-file-fixer
+        name: end of file fixer
+        entry: uv run --with pre-commit-hooks==6.0.0 python -m pre_commit_hooks.end_of_file_fixer
+        language: system
+        types: [text]
+
       - id: check-yaml
+        name: check yaml
+        entry: uv run --with pre-commit-hooks==6.0.0 python -m pre_commit_hooks.check_yaml
+        language: system
+        types: [yaml]
+
       - id: check-toml
+        name: check toml
+        entry: uv run --with pre-commit-hooks==6.0.0 python -m pre_commit_hooks.check_toml
+        language: system
+        types: [toml]
+
       - id: check-added-large-files
-        args: ["--maxkb=500"]
+        name: check added large files
+        entry: uv run --with pre-commit-hooks==6.0.0 python -m pre_commit_hooks.check_added_large_files --maxkb=500
+        language: system
+
       - id: detect-private-key
+        name: detect private key
+        entry: uv run --with pre-commit-hooks==6.0.0 python -m pre_commit_hooks.detect_private_key
+        language: system
 
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.17.4
-    hooks:
       - id: ruff-check
-        args: ["--fix"]
-      - id: ruff-format
+        name: ruff check
+        entry: uv run ruff check --fix
+        language: system
+        types: [python]
 
-  - repo: https://github.com/Yelp/detect-secrets
-    rev: v1.5.0
-    hooks:
+      - id: ruff-format
+        name: ruff format
+        entry: uv run ruff format
+        language: system
+        types: [python]
+
       - id: detect-secrets
+        name: detect secrets
+        entry: uv run --with detect-secrets==1.5.0 python -m detect_secrets.pre_commit_hook  # pragma: allowlist secret
+        language: system
         exclude: ^(uv\.lock|migrations/.*)$
