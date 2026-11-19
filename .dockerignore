@@ -9,6 +9,7 @@ __pycache__
 htmlcov
 .env
 .vscode
-tests
 docs
 *.log
+!tests/
+!tests/**

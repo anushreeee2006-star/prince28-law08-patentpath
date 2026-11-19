@@ -1,89 +1,58 @@
-\# Engineering notes: PatentPath
+﻿# Engineering Notes: PatentPath
 
+## D03 - PostgreSQL
 
+### Migrations
 
-\## D03 - PostgreSQL
-
-
-
-\### Migrations (upgrade, downgrade, upgrade)
-
-
-
-```text
-
-downgrade -1: 1190a664399b -> 9422b52fab0b
-
-current after downgrade: 9422b52fab0b
-
-upgrade head: 9422b52fab0b -> 1190a664399b
-
-final current: 1190a664399b (head)
-
-
+- Downgrade: `1190a664399b` -> `9422b52fab0b`
+- Upgrade head: `9422b52fab0b` -> `1190a664399b`
+- Final migration: `1190a664399b` (head)
 
 Migration history:
 
-9422b52fab0b -> 1190a664399b (head), add gin index on metadata
+- `9422b52fab0b` -> `1190a664399b`: add GIN index on metadata
+- `<base>` -> `9422b52fab0b`: create documents and pages tables
 
-<base> -> 9422b52fab0b, create documents and pages tables
+### Loader idempotency
 
-```
+- Run 1: records=20, inserted=0, updated=0, unchanged=20
+- Run 2: records=20, inserted=0, updated=0, unchanged=20
+- Run 3: not performed; sample data was not modified
 
+### EXPLAIN for section filters 7, 54, 135
 
+- Planner selected sequential scan.
+- With sequential scan disabled, PostgreSQL selected a bitmap heap scan using `ix_documents_metadata_gin`.
+- Sequential scan was faster for the small 20-row table.
 
-\### The loader is idempotent
+The planner may choose the GIN index when the table grows and index access becomes cheaper.
 
+## D04 - Docker Build Cache
 
+- Initial build: 26.9 seconds
+- Second build after changing the `/health` docstring: 32.5 seconds
+- Dependency layer `uv sync --locked --no-install-project` was cached.
+- Non-root verification: `uid=999(app) gid=999(app) groups=999(app)`.
+- Original `/health` docstring was restored after the cache test.
 
-```text
+## D04 - Testing
 
-run 1: records=20 inserted=0 updated=0 unchanged=20
+- Unit tests: 16 passed.
+- Integration tests: 7 passed.
+- Total: 23 passed.
+- Overall test coverage: 91%.
+- Integration tests ran against the PostgreSQL `app_test` database in Docker.
+- Windows Application Control blocked some local Python executables and native extensions, so tests were executed successfully in a Linux Docker test image.
 
-run 2: records=20 inserted=0 updated=0 unchanged=20
+## D04 - Task Runner
 
-run 3: Not performed (sample data was not modified)
+Configured Poe tasks:
 
-```
-
-
-
-\### EXPLAIN for ?section=7, 54, 135
-
-
-
-```text
-
-\-- 1) Planner chooses:
-
-Seq Scan on documents
-
-Execution Time: 0.839 ms
-
-
-
-\-- 2) Seq scan disabled:
-
-Bitmap Heap Scan on documents
-
-&#x20; -> Bitmap Index Scan on ix\_documents\_metadata\_gin
-
-Execution Time: 2.024 ms
-
-```
-
-
-
-\*\*Why did the planner choose a Seq Scan?\*\*
-
-
-
-The table contains only 20 rows, so scanning the entire table is cheaper than using the GIN index.
-
-
-
-\*\*When would it switch to the GIN index?\*\*
-
-
-
-When the table grows and using the GIN index becomes cheaper than scanning the entire table.
+- `dev`
+- `lint`
+- `test`
+- `test-all`
+- `test-integration`
+- `cov`
+- `migrate`
+- `seed`
