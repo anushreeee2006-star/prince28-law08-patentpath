@@ -87,6 +87,15 @@
 - For routine low-risk changes, automated checks help maintain faster delivery.
 
 #### Lead time measurement
-- Lead time is measured from pull request merge to successful production smoke test.
-- Three CD runs and their average lead time must be recorded using actual GitHub Actions timestamps.
-- Slowest step: To be identified from the CD run logs.
+
+Lead time was measured from pull request merge to successful production smoke test on 2026-11-20.
+
+| CD Run | Pull Request | Merge Time (UTC) | Smoke Test Passed (UTC) | Lead Time |
+|---|---|---|---|---|
+| #5 | #7 | 14:08:45 | 14:10:55 | 2 min 10 sec |
+| #6 | #8 | 14:36:24 | 14:38:34 | 2 min 10 sec |
+| #7 | #9 | 14:42:30 | 14:44:24 | 1 min 54 sec |
+
+- Average change lead time: 2 min 5 sec (124.67 seconds).
+- Slowest step: Smoke test live deployment (26–27 seconds).
+- All three measured CD runs completed successfully.
