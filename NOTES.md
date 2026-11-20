@@ -79,3 +79,14 @@
 - DATABASE_URL stored in GitHub Actions Secrets and Render environment.
 - RENDER_DEPLOY_HOOK stored in GitHub Actions Secrets.
 - No secrets committed to Git.
+
+### Stretch Tasks
+
+#### Human approval gate
+- A human approval gate is worth the delay for high-risk production deployments that need manual review.
+- For routine low-risk changes, automated checks help maintain faster delivery.
+
+#### Lead time measurement
+- Lead time is measured from pull request merge to successful production smoke test.
+- Three CD runs and their average lead time must be recorded using actual GitHub Actions timestamps.
+- Slowest step: To be identified from the CD run logs.
