@@ -1,11 +1,18 @@
 """Tests for PatentPath API endpoints."""
 
 
-def test_health_endpoint(client):
+def test_health_is_ok(client):
     response = client.get("/health")
 
     assert response.status_code == 200
-    assert response.json() == {"status": "ok"}
+    assert response.json()["status"] == "ok"
+
+
+def test_health_includes_git_sha(client):
+    response = client.get("/health")
+
+    assert response.status_code == 200
+    assert response.json()["git_sha"] == "dev"
 
 
 def test_ready_endpoint(client):

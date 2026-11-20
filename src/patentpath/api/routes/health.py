@@ -4,6 +4,7 @@ from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 from sqlalchemy import text
 
+from patentpath.config import get_settings
 from patentpath.db.session import AsyncSessionLocal
 
 router = APIRouter(tags=["Health"])
@@ -11,8 +12,12 @@ router = APIRouter(tags=["Health"])
 
 @router.get("/health")
 async def health():
-    """Check whether the application is running."""
-    return {"status": "ok"}
+    """Check whether the application is running and identify its version."""
+    settings = get_settings()
+    return {
+        "status": "ok",
+        "git_sha": settings.git_sha,
+    }
 
 
 @router.get("/ready")
