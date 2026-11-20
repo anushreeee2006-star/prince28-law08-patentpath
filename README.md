@@ -1,5 +1,12 @@
 # PatentPath
 
+[![CI](https://github.com/anushreeee2006-star/prince28-law08-patentpath/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/anushreeee2006-star/prince28-law08-patentpath/actions/workflows/ci.yml)
+[![Live](https://img.shields.io/website?url=https%3A%2F%2Fpatentpath.onrender.com%2Fhealth)](https://patentpath.onrender.com/health)
+[![Uptime Robot status](https://img.shields.io/uptimerobot/status/m804747655-9362dcc3e20ae1777d9a9e7c)](https://dashboard.uptimerobot.com/)
+[![Uptime Robot uptime](https://img.shields.io/uptimerobot/ratio/30/m804747655-9362dcc3e20ae1777d9a9e7c)](https://dashboard.uptimerobot.com/)
+
+**Status:** Week 1 complete Â· live at https://patentpath.onrender.com
+
 ## Project Overview
 
 PatentPath helps users understand Indian patent basics, including patentability, provisional vs complete filing, fees and forms.
