@@ -10,7 +10,7 @@ from patentpath.db.session import AsyncSessionLocal
 router = APIRouter(tags=["Health"])
 
 
-@router.get("/health")
+@router.api_route("/health", methods=["GET", "HEAD"])
 async def health():
     """Check whether the application is running and identify its version."""
     settings = get_settings()
