@@ -48,3 +48,34 @@
 ### Windows test execution note
 - The Windows Application Control policy blocked the Poe executable.
 - Tests and coverage were therefore run successfully through isolated uv environments using pytest directly.
+
+## D05 - CI/CD and going live
+
+- Live URL: https://patentpath.onrender.com
+- CI PR #4: https://github.com/anushreeee2006-star/prince28-law08-patentpath/pull/4
+- Automatic CD run: https://github.com/anushreeee2006-star/prince28-law08-patentpath/actions/runs/44716472392
+
+### Rollback drill
+- Rolled back to SHA: 3442b86d0b302dbe702b4f52b3ef0696991fe44e
+- Rollback smoke test: Passed
+- /health: HTTP 200
+- /ready: HTTP 200, database ready
+- /v1/documents?limit=1: HTTP 200
+
+### Roll-forward
+- Restored SHA: 719bf45c8684796e9a2283b9e792f1af8dbaa0cb
+- Final smoke test: Passed
+- /health: HTTP 200
+- /ready: HTTP 200, database ready
+- /v1/documents?limit=1: HTTP 200
+
+### Monitoring
+- UptimeRobot monitors /health every 5 minutes.
+- Email alerts enabled.
+- HEAD requests supported by /health.
+- Monitor status verified Up.
+
+### Secrets
+- DATABASE_URL stored in GitHub Actions Secrets and Render environment.
+- RENDER_DEPLOY_HOOK stored in GitHub Actions Secrets.
+- No secrets committed to Git.
