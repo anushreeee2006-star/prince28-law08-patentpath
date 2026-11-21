@@ -99,3 +99,37 @@ Lead time was measured from pull request merge to successful production smoke te
 - Average change lead time: 2 min 5 sec (124.67 seconds).
 - Slowest step: Smoke test live deployment (26–27 seconds).
 - All three measured CD runs completed successfully.
+
+## D03 - PostgreSQL EXPLAIN ANALYZE and GIN Index Evidence
+
+### Test setup
+- PostgreSQL: pgvector/pgvector:pg17
+- Database: app
+- Table: documents
+- Total documents: 20
+- JSONB field tested: form
+- Filter value: Form 1
+- GIN index: ix_documents_metadata_gin
+
+### 1. Normal query plan
+- Planner selected: Sequential Scan (Seq Scan)
+- Matching rows: 1
+- Rows removed by filter: 19
+- Planning time: 8.804 ms
+- Execution time: 0.596 ms
+
+PostgreSQL selected a sequential scan because the table is small (20 records), making a full table scan reasonable.
+
+### 2. GIN index usage verification
+- Planner selected: Bitmap Heap Scan
+- Index scan: Bitmap Index Scan
+- Index used: ix_documents_metadata_gin
+- Matching rows: 1
+- Index searches: 1
+- Planning time: 0.076 ms
+- Execution time: 0.871 ms
+
+The GIN index was successfully used for the JSONB containment query after sequential scans were disabled in the test session.
+
+### Conclusion
+EXPLAIN ANALYZE confirmed the normal planner behavior and verified that the GIN index on the JSONB metadata column can be used successfully.
