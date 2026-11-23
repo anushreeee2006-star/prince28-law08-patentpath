@@ -1,4 +1,4 @@
-﻿
+
 repos:
   - repo: local
     hooks:
@@ -30,6 +30,7 @@ repos:
         name: check added large files
         entry: uv run --with pre-commit-hooks==6.0.0 python -m pre_commit_hooks.check_added_large_files --maxkb=500
         language: system
+        exclude: ^data/manifest\.jsonl$
 
       - id: detect-private-key
         name: detect private key
@@ -50,6 +51,6 @@ repos:
 
       - id: detect-secrets
         name: detect secrets
-        entry: uv run --with detect-secrets==1.5.0 python -m detect_secrets.pre_commit_hook  # pragma: allowlist secret
+        entry: uv run --with detect-secrets==1.5.0 detect-secrets-hook --baseline .secrets.baseline  # pragma: allowlist secret
         language: system
         exclude: ^(uv\.lock|migrations/.*)$
