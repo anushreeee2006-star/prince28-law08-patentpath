@@ -288,9 +288,17 @@ async def _download(
     src: Source,
     root: Path,
     raw_dir: Path,
+    headers: dict[str, str] | None = None,
 ) -> dict:
     """Stream a document to a temporary file and rename it when complete."""
-    async with client.stream("GET", src.url) as response:
+    async with client.stream("GET", src.url, headers=headers) as response:
+        if response.status_code == 304:
+            return {
+                "not_modified": True,
+                "http_status": 304,
+                "etag": response.headers.get("ETag"),
+            }
+
         if response.status_code != 200:
             raise DownloadError(
                 f"HTTP {response.status_code}",
@@ -325,6 +333,7 @@ async def _download(
         "sha256": digest.hexdigest(),
         "content_type": content_type.split(";")[0].strip(),
         "http_status": 200,
+        "etag": response.headers.get("ETag"),
     }
 
 
@@ -339,6 +348,7 @@ async def fetch_one(
     slots: asyncio.Semaphore,
     max_attempts: int,
     sleep: Sleep,
+    previous_record: dict | None = None,
 ) -> dict:
     """Fetch one permitted source and return its manifest record."""
     base = {
@@ -349,6 +359,10 @@ async def fetch_one(
         "via": "http",
         "fetched_at": now_iso(),
     }
+
+    request_headers = {}
+    if previous_record and previous_record.get("etag"):
+        request_headers["If-None-Match"] = previous_record["etag"]
 
     async with slots:
         allowed, crawl_delay = await robots.check(src.url)
@@ -362,7 +376,22 @@ async def fetch_one(
 
             try:
                 async with asyncio.timeout(ATTEMPT_TIMEOUT):
-                    result = await _download(client, src, root, raw_dir)
+                    result = await _download(
+                        client, src, root, raw_dir, headers=request_headers or None
+                    )
+
+                if result.get("not_modified"):
+                    return {
+                        **base,
+                        **previous_record,
+                        "url": src.url,
+                        "status": "downloaded",
+                        "http_status": 304,
+                        "etag": previous_record["etag"],
+                        "attempts": attempt,
+                        "revalidated": True,
+                        "fetched_at": now_iso(),
+                    }
 
                 return {
                     **base,
@@ -435,7 +464,10 @@ async def fetch_all(
         robots = Robots(client_instance)
 
         async def process(src: Source) -> None:
-            if manifest.done(src.url, root):
+            previous_record = manifest.records.get(src.url)
+            is_done = manifest.done(src.url, root)
+
+            if is_done and not (previous_record or {}).get("etag"):
                 summary["skipped"] += 1
                 return
 
@@ -449,16 +481,18 @@ async def fetch_all(
                 slots=slots,
                 max_attempts=max_attempts,
                 sleep=sleep,
+                previous_record=previous_record if is_done else None,
             )
 
             if record["status"] in {"downloaded", "blocked", "failed"}:
                 manifest.add(record)
 
-            status = record["status"]
-            if status in summary:
-                summary[status] += 1
+            if record["status"] == "downloaded" and record.get("http_status") == 304:
+                summary["skipped"] += 1
+            elif record["status"] in summary:
+                summary[record["status"]] += 1
 
-            if status == "failed":
+            if record["status"] == "failed":
                 summary["errors"].append(
                     {
                         "url": src.url,

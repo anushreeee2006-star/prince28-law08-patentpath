@@ -426,3 +426,102 @@ async def test_fetch_sources_downloads_then_skips_completed(tmp_path, monkeypatc
     assert second["skipped"] == 1
     assert second["failed"] == 0
     assert len(requests) == 2
+
+
+@pytest.mark.asyncio
+async def test_fetch_sources_revalidates_etag_and_updates_content(tmp_path, monkeypatch):
+    from patentpath.ingest import fetch as fetch_module
+
+    old_content = b"%PDF-1.7 original"
+    new_content = b"%PDF-1.7 updated"
+    document_requests = []
+
+    async def handler(request):
+        if request.url.path == "/robots.txt":
+            return httpx.Response(404)
+
+        document_requests.append(request)
+
+        if len(document_requests) == 1:
+            return httpx.Response(
+                200,
+                headers={"Content-Type": "application/pdf", "ETag": '"v1"'},
+                content=old_content,
+            )
+
+        assert request.headers.get("If-None-Match") == '"v1"'
+
+        if len(document_requests) == 2:
+            return httpx.Response(304, headers={"ETag": '"v1"'})
+
+        return httpx.Response(
+            200,
+            headers={"Content-Type": "application/pdf", "ETag": '"v2"'},
+            content=new_content,
+        )
+
+    def client_factory(max_concurrency=4):
+        return httpx.AsyncClient(transport=httpx.MockTransport(handler))
+
+    monkeypatch.setattr(fetch_module, "make_client", client_factory)
+
+    src = Source(
+        url="https://example.org/patents-act.pdf",
+        source="Patent Act",
+        licence="Test licence",
+        title="Patents Act",
+    )
+    root = tmp_path
+    raw_dir = root / "data" / "raw"
+    manifest_path = root / "data" / "manifest.jsonl"
+
+    async def no_wait(seconds):
+        pass
+
+    first = await fetch_sources(
+        [src],
+        root,
+        raw_dir,
+        manifest_path,
+        delay=0,
+        retries=0,
+        sleep=no_wait,
+    )
+    assert first["downloaded"] == 1
+    assert len(document_requests) == 1
+
+    record = json.loads(manifest_path.read_text(encoding="utf-8").splitlines()[-1])
+    target = root / record["path"]
+    assert record["etag"] == '"v1"'
+    assert target.read_bytes() == old_content
+
+    second = await fetch_sources(
+        [src],
+        root,
+        raw_dir,
+        manifest_path,
+        delay=0,
+        retries=0,
+        sleep=no_wait,
+    )
+    assert second["skipped"] == 1
+    assert second["downloaded"] == 0
+    assert len(document_requests) == 2
+    assert target.read_bytes() == old_content
+
+    third = await fetch_sources(
+        [src],
+        root,
+        raw_dir,
+        manifest_path,
+        delay=0,
+        retries=0,
+        sleep=no_wait,
+    )
+    assert third["downloaded"] == 1
+    assert len(document_requests) == 3
+    assert target.read_bytes() == new_content
+
+    latest = json.loads(manifest_path.read_text(encoding="utf-8").splitlines()[-1])
+    assert latest["etag"] == '"v2"'
+    assert latest["sha256"] == hashlib.sha256(new_content).hexdigest()
