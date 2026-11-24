@@ -262,7 +262,10 @@ def parse_pdf_ocr(path: Path, language: str = "eng") -> ParsedDoc:
     doc = _open_pdf(path)
 
     try:
-        texts = [page.get_text(textpage=page.get_textpage_ocr(language=language)) for page in doc]
+        texts = [
+            page.get_text(textpage=page.get_textpage_ocr(language=language, dpi=150, full=True))
+            for page in doc
+        ]
     except Exception as exc:
         raise ParseError("ocr_unavailable", str(exc)) from exc
 

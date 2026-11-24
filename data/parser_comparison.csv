@@ -1,21 +1,21 @@
 file,parser,status,pages,characters,headings,tables,seconds,error
-data\raw\epo\epo-guidelines-2026.pdf,pymupdf,success,1092,2722361,3225,0,6.373,
-data\raw\epo\epo-guidelines-2026.pdf,pypdf,success,1092,2732329,206,0,76.194,
-data\raw\ip-india-cgpdtm\2748c8f6-ca59-4bb9-b5e9-690a7a934136-e149111f.pdf,pymupdf,failed,0,0,0,0,3.293,no_text_layer: 0 characters on 52 pages
-data\raw\ip-india-cgpdtm\2748c8f6-ca59-4bb9-b5e9-690a7a934136-e149111f.pdf,pypdf,failed,0,0,0,0,0.04,no_text_layer: almost no text on 52 pages
-data\raw\ip-india-cgpdtm\86c74a8b-b029-4b79-812a-d260b2f90368-3f1f5ca8.pdf,pymupdf,success,4,39452,0,35,1.014,
-data\raw\ip-india-cgpdtm\86c74a8b-b029-4b79-812a-d260b2f90368-3f1f5ca8.pdf,pypdf,success,4,8068,0,0,0.352,
-data\raw\ip-india-cgpdtm\forms-and-official-fees-78ff0e5f.html,trafilatura,success,1,948,0,3,0.151,
-data\raw\ip-india-cgpdtm\forms-and-official-fees-78ff0e5f.html,strip-tags,success,1,18437,8,1,0.026,
-data\raw\ip-india-cgpdtm\basics-of-patents-593130e6.html,trafilatura,success,1,2079,0,0,0.131,
-data\raw\ip-india-cgpdtm\basics-of-patents-593130e6.html,strip-tags,success,1,19546,9,0,0.025,
-data\raw\ip-india-cgpdtm\faqs-d3efbe1e.html,trafilatura,success,1,211,0,0,0.209,
-data\raw\ip-india-cgpdtm\faqs-d3efbe1e.html,strip-tags,success,1,17474,7,0,0.025,
-data\raw\ip-india-cgpdtm\which-inventions-can-be-patented-ee337de8.html,trafilatura,success,1,1402,0,0,0.126,
-data\raw\ip-india-cgpdtm\which-inventions-can-be-patented-ee337de8.html,strip-tags,success,1,18875,7,0,0.024,
-data\raw\ip-india-cgpdtm\inpass-16c188a5.html,trafilatura,success,1,318,0,0,0.161,
-data\raw\ip-india-cgpdtm\inpass-16c188a5.html,strip-tags,success,1,17652,8,0,0.024,
-data\raw\ip-india-cgpdtm\filing-process-step-by-step-8b5fef91.html,trafilatura,success,1,227,0,0,0.198,
-data\raw\ip-india-cgpdtm\filing-process-step-by-step-8b5fef91.html,strip-tags,success,1,17511,7,0,0.025,
-data\raw\ip-india-cgpdtm\rules-patents-2003-5b28698f.html,trafilatura,success,1,602,0,0,0.044,
-data\raw\ip-india-cgpdtm\rules-patents-2003-5b28698f.html,strip-tags,success,1,974,2,0,0.002,
+data\raw\ip-india-cgpdtm\7fdd559b-1ff8-4a87-8c36-033e7356b39b-9c1fa2de.pdf,pymupdf,success,67,148067,191,13,11.348,
+data\raw\ip-india-cgpdtm\7fdd559b-1ff8-4a87-8c36-033e7356b39b-9c1fa2de.pdf,pypdf,success,67,146715,0,0,5.46,
+data\raw\ip-india-cgpdtm\e1adfe40-7af3-4180-ba04-2e0099c6dca5-825601cc.pdf,pymupdf,success,174,351343,493,180,41.812,
+data\raw\ip-india-cgpdtm\e1adfe40-7af3-4180-ba04-2e0099c6dca5-825601cc.pdf,pypdf,success,174,318569,0,0,11.813,
+data\raw\ip-india-cgpdtm\2748c8f6-ca59-4bb9-b5e9-690a7a934136-e149111f.pdf,pymupdf,failed,0,0,0,0,5.457,no_text_layer: 0 characters on 52 pages
+data\raw\ip-india-cgpdtm\2748c8f6-ca59-4bb9-b5e9-690a7a934136-e149111f.pdf,pypdf,failed,0,0,0,0,0.09,no_text_layer: almost no text on 52 pages
+data\raw\ip-india-cgpdtm\73b5bf10-b04e-4f45-abef-87ff117315dc-dccb9293.pdf,pymupdf,success,69,242921,177,0,15.976,
+data\raw\ip-india-cgpdtm\73b5bf10-b04e-4f45-abef-87ff117315dc-dccb9293.pdf,pypdf,success,69,241650,0,0,7.673,
+data\raw\ip-india-cgpdtm\8a163997-d0d1-45ed-a657-725b31c44f3f-d3b56477.pdf,pymupdf,failed,0,0,0,0,20.889,no_text_layer: 0 characters on 73 pages
+data\raw\ip-india-cgpdtm\8a163997-d0d1-45ed-a657-725b31c44f3f-d3b56477.pdf,pypdf,success,73,127818,0,0,3.227,
+data\raw\ip-india-cgpdtm\86c74a8b-b029-4b79-812a-d260b2f90368-3f1f5ca8.pdf,pymupdf,success,4,39452,0,35,1.92,
+data\raw\ip-india-cgpdtm\86c74a8b-b029-4b79-812a-d260b2f90368-3f1f5ca8.pdf,pypdf,success,4,8068,0,0,0.757,
+data\raw\ip-india-cgpdtm\d7bed07b-5c56-404b-a0c8-152b4bd18f0f-c9215741.pdf,pymupdf,failed,0,0,0,0,7.088,no_text_layer: 95 characters on 8 pages
+data\raw\ip-india-cgpdtm\d7bed07b-5c56-404b-a0c8-152b4bd18f0f-c9215741.pdf,pypdf,success,8,12788,0,0,1.36,
+data\raw\ip-india-cgpdtm\forms-and-official-fees-78ff0e5f.html,trafilatura,success,1,948,0,3,0.448,
+data\raw\ip-india-cgpdtm\forms-and-official-fees-78ff0e5f.html,strip-tags,success,1,18437,8,1,0.043,
+data\raw\ip-india-cgpdtm\basics-of-patents-593130e6.html,trafilatura,success,1,2079,0,0,0.245,
+data\raw\ip-india-cgpdtm\basics-of-patents-593130e6.html,strip-tags,success,1,19546,9,0,0.04,
+data\raw\ip-india-cgpdtm\faqs-d3efbe1e.html,trafilatura,success,1,211,0,0,0.473,
+data\raw\ip-india-cgpdtm\faqs-d3efbe1e.html,strip-tags,success,1,17474,7,0,0.061,

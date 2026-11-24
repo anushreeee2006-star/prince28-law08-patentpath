@@ -276,25 +276,53 @@ EXPLAIN ANALYZE confirmed the normal planner behavior and verified that the GIN 
 <!-- STEP 5 PARSER COMPARISON START -->
 ### Step 5 - Ten hard files parser comparison
 
-Compared 3 challenging PDFs and all 7 available HTML files.
-PDF parsers: PyMuPDF and pypdf. HTML parsers: Trafilatura and strip-tags.
+Compared 10 files. Default selection uses the 10 largest unique downloaded PDF/HTML files from the manifest.
+PDF parsers: PyMuPDF and pypdf. HTML parsers: Trafilatura and strip-tags. Text/data files use the plain parser.
 
-| File | Type | Parser 1 result | Parser 2 result | Better | Better, why |
-|---|---|---|---|---|---|
-| epo-guidelines-2026.pdf | PDF | pymupdf: success: 2722361 chars, 3225 headings, 0 tables, 6.373s | pypdf: success: 2732329 chars, 206 headings, 0 tables, 76.194s | pymupdf | Both extracted 1,092 pages and similar text volume; PyMuPDF was much faster (6.373s vs 76.194s). Heading counts alone do not prove heading accuracy. |
-| 2748c8f6-ca59-4bb9-b5e9-690a7a934136-e149111f.pdf | PDF | pymupdf: Failed (3.293s) | pypdf: Failed (0.04s) | Neither | Both parsers failed; OCR or manual recovery is needed. |
-| 86c74a8b-b029-4b79-812a-d260b2f90368-3f1f5ca8.pdf | PDF | pymupdf: success: 39452 chars, 0 headings, 35 tables, 1.014s | pypdf: success: 8068 chars, 0 headings, 0 tables, 0.352s | pymupdf | Extracted 35 tables and 39,452 characters, compared with pypdf's 0 tables and 8,068 characters; verify table layout against the source. |
-| forms-and-official-fees-78ff0e5f.html | HTML | trafilatura: success: 948 chars, 0 headings, 3 tables, 0.151s | strip-tags: success: 18437 chars, 8 headings, 1 tables, 0.026s | trafilatura | Manual inspection confirmed the fees table in Markdown; strip-tags retained extensive unrelated navigation. |
-| basics-of-patents-593130e6.html | HTML | trafilatura: success: 2079 chars, 0 headings, 0 tables, 0.131s | strip-tags: success: 19546 chars, 9 headings, 0 tables, 0.025s | trafilatura | Manual inspection confirmed useful patent sections and bullet content; strip-tags retained navigation noise. |
-| faqs-d3efbe1e.html | HTML | trafilatura: success: 211 chars, 0 headings, 0 tables, 0.209s | strip-tags: success: 17474 chars, 7 headings, 0 tables, 0.025s | Neither | Trafilatura extracted only a PDF-unavailable message; strip-tags mainly retained navigation, not FAQ answers. |
-| which-inventions-can-be-patented-ee337de8.html | HTML | trafilatura: success: 1402 chars, 0 headings, 0 tables, 0.126s | strip-tags: success: 18875 chars, 7 headings, 0 tables, 0.024s | trafilatura | Manual inspection confirmed patentability criteria and explanations; strip-tags retained navigation noise. |
-| inpass-16c188a5.html | HTML | trafilatura: success: 318 chars, 0 headings, 0 tables, 0.161s | strip-tags: success: 17652 chars, 8 headings, 0 tables, 0.024s | trafilatura | Extracted the relevant InPASS search description without the extensive navigation retained by strip-tags. |
-| filing-process-step-by-step-8b5fef91.html | HTML | trafilatura: success: 227 chars, 0 headings, 0 tables, 0.198s | strip-tags: success: 17511 chars, 7 headings, 0 tables, 0.025s | Neither | Trafilatura extracted Coming Soon/PDF-unavailable messages; strip-tags mainly retained navigation. |
-| rules-patents-2003-5b28698f.html | HTML | trafilatura: success: 602 chars, 0 headings, 0 tables, 0.044s | strip-tags: success: 974 chars, 2 headings, 0 tables, 0.002s | trafilatura | Extracted the title, table of contents and disclaimers cleanly; strip-tags duplicated content and included navigation. |
+| File | Parsers (A / B) | Pages | A found | B found | Time (A / B) | Better, why |
+|---|---|---:|---|---|---|---|
+| 7fdd559b-1ff8-4a87-8c36-033e7356b39b-9c1fa2de.pdf | pymupdf / pypdf | 67 / 67 | 148,067 chars; 191 headings; 13 tables | 146,715 chars; 0 headings; 0 tables | 11.348s / 5.46s | PyMuPDF: both extract the contents, but PyMuPDF preserves heading structure (191 vs 0). |
+| e1adfe40-7af3-4180-ba04-2e0099c6dca5-825601cc.pdf | pymupdf / pypdf | 174 / 174 | 351,343 chars; 493 headings; 180 tables | 318,569 chars; 0 headings; 0 tables | 41.812s / 11.813s | PyMuPDF: both extract readable text; PyMuPDF preserves headings (493 vs 0), despite being slower. |
+| 2748c8f6-ca59-4bb9-b5e9-690a7a934136-e149111f.pdf | pymupdf / pypdf | 0 / 0 | FAILED: no_text_layer: 0 characters on 52 pages | FAILED: no_text_layer: almost no text on 52 pages | 5.457s / 0.09s | Neither: Both comparison parsers failed; separate Tesseract OCR test successfully recovered 52 pages and 87,422 characters (150 DPI, full-page OCR; latest verification). |
+| 73b5bf10-b04e-4f45-abef-87ff117315dc-dccb9293.pdf | pymupdf / pypdf | 69 / 69 | 242,921 chars; 177 headings; 0 tables | 241,650 chars; 0 headings; 0 tables | 15.976s / 7.673s | PyMuPDF: both extract readable Act text; PyMuPDF preserves headings (177 vs 0). |
+| 8a163997-d0d1-45ed-a657-725b31c44f3f-d3b56477.pdf | pymupdf / pypdf | 0 / 73 | FAILED: no_text_layer: 0 characters on 73 pages | 127,818 chars; 0 headings; 0 tables | 20.889s / 3.227s | pypdf: pypdf succeeded; pymupdf failed. |
+| 86c74a8b-b029-4b79-812a-d260b2f90368-3f1f5ca8.pdf | pymupdf / pypdf | 4 / 4 | 39,452 chars; 0 headings; 35 tables | 8,068 chars; 0 headings; 0 tables | 1.92s / 0.757s | pymupdf: Extracted 35 tables and 39,452 characters, compared with pypdf's 0 tables and 8,068 characters; verify table layout against the source. |
+| d7bed07b-5c56-404b-a0c8-152b4bd18f0f-c9215741.pdf | pymupdf / pypdf | 0 / 8 | FAILED: no_text_layer: 95 characters on 8 pages | 12,788 chars; 0 headings; 0 tables | 7.088s / 1.36s | pypdf: pypdf succeeded; pymupdf failed. |
+| forms-and-official-fees-78ff0e5f.html | trafilatura / strip-tags | 1 / 1 | 948 chars; 0 headings; 3 tables | 18,437 chars; 8 headings; 1 tables | 0.448s / 0.043s | trafilatura: Manual inspection confirmed the fees table in Markdown; strip-tags retained extensive unrelated navigation. |
+| basics-of-patents-593130e6.html | trafilatura / strip-tags | 1 / 1 | 2,079 chars; 0 headings; 0 tables | 19,546 chars; 9 headings; 0 tables | 0.245s / 0.04s | trafilatura: Manual inspection confirmed useful patent sections and bullet content; strip-tags retained navigation noise. |
+| faqs-d3efbe1e.html | trafilatura / strip-tags | 1 / 1 | 211 chars; 0 headings; 0 tables | 17,474 chars; 7 headings; 0 tables | 0.473s / 0.061s | Neither: Trafilatura extracted only a PDF-unavailable message; strip-tags mainly retained navigation, not FAQ answers. |
 
-**Inspection note:** Parser metrics alone do not prove text quality. Compare extracted pages with the original source, especially headings, tables, repeated headers/footers and unwanted characters.
+**Inspection note:** Compare extracted pages with original sources. Check tables, headings, repeated headers/footers and unwanted characters; higher character counts alone do not mean better extraction.
 
-**PDF note:** PyMuPDF table extraction was disabled for the EPO Guidelines PDF to avoid excessive processing time; default parser behaviour is unchanged.
+**PDF note:** PyMuPDF table extraction was disabled only for the EPO Guidelines comparison to avoid excessive processing time.
 
 Detailed per-parser results: `data/parser_comparison.csv`.
 <!-- STEP 5 PARSER COMPARISON END -->
+
+### SQL inspection - three parsed documents
+
+Inspected parsed pages from three documents in Neon PostgreSQL.
+
+| Document ID | Document title | Inspection result | Issues found |
+|---|---|---|---|
+| 1718 | Patent Cooperation Treaty | Pages 1-5 contain readable Patents Act, 1970 table-of-contents text. | Title does not match extracted content; headings array is empty on all five pages. Verify source-to-document metadata mapping. |
+| 1729 | CRI Guidelines Annexure I | Pages 1-5 contain readable technical examples and explanations. | Headings array is empty on all five pages despite visible section labels. Check formula formatting on page 5 against the original PDF. |
+| 1717 | The Patents Rules, 2003 | Page 1 contains the title, table of contents heading and disclaimer text. | Headings array is empty even though Markdown heading markers are present in the extracted text. Only one page was returned in this query. |
+
+**Observed parsing issues and possible fixes:**
+- Heading extraction: investigate why headings are not being populated even when headings are visible in extracted text. Improve heading detection for PDF and HTML documents.
+- Metadata mapping: verify why document ID 1718 is titled Patent Cooperation Treaty while its extracted text begins with The Patents Act, 1970.
+- Formula preservation: compare mathematical expressions in the CRI document with the original PDF to check whether symbols and formatting are preserved.
+- HTML structure: verify that Markdown-style heading markers are also represented in the structured headings field.
+
+**Inspection limitation:** These observations are based on the SQL output returned for the selected pages. They do not establish that every page of these documents has the same issues.
+
+### Plain-text parser heading verification
+
+Tested the Markdown parser using `data/raw/fastapi-fastapi/docs/de/llm-prompt.md`.
+
+- Parsing completed successfully and returned 4 pages.
+- Heading extraction detected `Target language`, `Grammar to use when talking to the reader`, `Headings`, and other section headings.
+- Text content was readable and Markdown heading markers were preserved in the extracted text.
+- Some headings repeat across pages because the document is split into multiple pages.
+- Result: plain-text parser heading extraction works on this Markdown sample.
