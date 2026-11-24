@@ -26,6 +26,7 @@ PARSED = ParsedDoc(
     parser="pymupdf",
     kind="pdf",
     title="Fever Guidelines",
+    scanned_pages=[2],
     pages=[
         ParsedPage(
             1,
@@ -56,6 +57,7 @@ async def test_save_document_with_pages_and_headings(
         assert document.title == "Fever Guidelines"
         assert document.doc_type == "pdf"
         assert document.metadata_["pages"] == 2
+        assert document.metadata_["scanned_pages"] == [2]
 
         pages = list(
             await session.scalars(

@@ -42,6 +42,7 @@ async def save_document(session: AsyncSession, record: dict, parsed: ParsedDoc) 
             "pages": len(parsed.pages),
             "tables": sum(page.tables for page in parsed.pages),
             "chars": sum(len(page.text) for page in parsed.pages),
+            "scanned_pages": parsed.scanned_pages,
         },
         pages=[
             Page(page_no=page.page_no, text=page.text, headings=page.headings)

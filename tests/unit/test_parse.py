@@ -170,6 +170,27 @@ def test_pdf_parser_detects_tables(tmp_path: Path):
     assert "Form" in result.pages[0].text
 
 
+def test_pdf_parser_detects_one_blank_page_among_text_pages(tmp_path: Path):
+    source = tmp_path / "mixed-pages.pdf"
+    doc = pymupdf.open()
+
+    for number in range(2):
+        page = doc.new_page()
+        page.insert_text(
+            (72, 72),
+            f"Page {number + 1}: " + "This page contains enough readable text for extraction. " * 4,
+        )
+
+    doc.new_page()
+    doc.save(source)
+    doc.close()
+
+    for parser in ("pymupdf", "pypdf"):
+        result = parse_file(source, pdf_parser=parser)
+        assert len(result.pages) == 3
+        assert result.scanned_pages == [3]
+
+
 def test_scanned_pdf_reports_no_text_layer(tmp_path: Path):
     source = tmp_path / "scanned.pdf"
     doc = pymupdf.open()
