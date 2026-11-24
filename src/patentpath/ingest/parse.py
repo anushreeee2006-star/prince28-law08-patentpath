@@ -35,6 +35,7 @@ class ParsedDoc:
     kind: str
     title: str
     pages: list[ParsedPage]
+    scanned_pages: list[int] = field(default_factory=list)
 
 
 class ParseError(Exception):
@@ -136,7 +137,13 @@ def with_heading_paths(texts: list[str]) -> list[ParsedPage]:
     return pages
 
 
-def finish(parser: str, kind: str, title: str, texts: list[str]) -> ParsedDoc:
+def finish(
+    parser: str,
+    kind: str,
+    title: str,
+    texts: list[str],
+    scanned_pages: list[int] | None = None,
+) -> ParsedDoc:
     """Clean extracted text and build the final parsed document."""
     texts = drop_repeated_lines([clean_text(t) for t in texts])
     texts = [clean_text(t) for t in texts]
@@ -152,6 +159,7 @@ def finish(parser: str, kind: str, title: str, texts: list[str]) -> ParsedDoc:
         kind=kind,
         title=final_title,
         pages=with_heading_paths(texts),
+        scanned_pages=scanned_pages or [],
     )
 
 
@@ -247,14 +255,21 @@ def parse_pdf_pymupdf(path: Path, extract_tables: bool = True) -> ParsedDoc:
 
         texts.append("\n".join(out))
 
-    if chars < MIN_CHARS_PER_PAGE * len(texts):
+    page_char_counts = [len(clean_text(text)) for text in texts]
+    scanned_pages = [
+        page_no
+        for page_no, count in enumerate(page_char_counts, start=1)
+        if count < MIN_CHARS_PER_PAGE
+    ]
+
+    if all(count < MIN_CHARS_PER_PAGE for count in page_char_counts):
         raise ParseError(
             "no_text_layer",
-            f"{chars} characters on {len(texts)} pages",
+            f"Insufficient text across {len(texts)} pages",
         )
 
     title = (doc.metadata or {}).get("title") or path.stem
-    return finish("pymupdf", "pdf", title, texts)
+    return finish("pymupdf", "pdf", title, texts, scanned_pages)
 
 
 def parse_pdf_ocr(path: Path, language: str = "eng") -> ParsedDoc:
@@ -269,7 +284,12 @@ def parse_pdf_ocr(path: Path, language: str = "eng") -> ParsedDoc:
     except Exception as exc:
         raise ParseError("ocr_unavailable", str(exc)) from exc
 
-    return finish(f"ocr-{language}", "pdf", "", texts)
+    scanned_pages = [
+        page_no
+        for page_no, text in enumerate(texts, start=1)
+        if len(clean_text(text)) < MIN_CHARS_PER_PAGE
+    ]
+    return finish(f"ocr-{language}", "pdf", "", texts, scanned_pages)
 
 
 # ---------- PDF parser 2: pypdf ----------
@@ -299,13 +319,20 @@ def parse_pdf_pypdf(path: Path) -> ParsedDoc:
     if not texts:
         raise ParseError("empty", "the PDF has no pages")
 
-    if sum(len(text) for text in texts) < MIN_CHARS_PER_PAGE * len(texts):
+    page_char_counts = [len(clean_text(text)) for text in texts]
+    scanned_pages = [
+        page_no
+        for page_no, count in enumerate(page_char_counts, start=1)
+        if count < MIN_CHARS_PER_PAGE
+    ]
+
+    if all(count < MIN_CHARS_PER_PAGE for count in page_char_counts):
         raise ParseError(
             "no_text_layer",
-            f"almost no text on {len(texts)} pages",
+            f"Insufficient text across {len(texts)} pages",
         )
 
-    return finish("pypdf", "pdf", "", texts)
+    return finish("pypdf", "pdf", "", texts, scanned_pages)
 
 
 # ---------- HTML ----------
