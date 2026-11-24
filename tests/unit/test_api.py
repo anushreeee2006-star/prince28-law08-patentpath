@@ -138,3 +138,23 @@ def test_search_no_results(client):
     assert response.status_code == 200
     assert response.json()["total"] == 0
     assert response.json()["items"] == []
+
+
+def test_get_document_page(client):
+    response = client.get("/v1/documents/TEST001/pages?page_no=2")
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "document_id": "TEST001",
+        "page_no": 2,
+        "text": "Patent specification page two.",
+        "headings": ["Patent Specification", "Claims"],
+    }
+
+
+def test_get_missing_document_page(client):
+    response = client.get("/v1/documents/UNKNOWN/pages?page_no=2")
+
+    assert response.status_code == 404
+    assert response.headers["content-type"].startswith("application/problem+json")
+    assert response.json()["title"] == "Not Found"

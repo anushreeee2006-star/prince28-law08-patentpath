@@ -72,6 +72,16 @@ class FakeDocumentRepository:
             None,
         )
 
+    async def get_page(self, external_id, page_no):
+        if external_id == "TEST001" and page_no == 2:
+            return {
+                "document_id": external_id,
+                "page_no": 2,
+                "text": "Patent specification page two.",
+                "headings": ["Patent Specification", "Claims"],
+            }
+        return None
+
 
 class FakeDatabaseSession:
     """Fake successful database session for readiness tests."""
