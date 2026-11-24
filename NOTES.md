@@ -266,3 +266,9 @@ EXPLAIN ANALYZE confirmed the normal planner behavior and verified that the GIN 
 - Verified --retry-failed with zero remaining failures: 0 files processed.
 - Ruff lint and formatting passed.
 - Tests: 70 passed.
+
+### Final failure verification
+- Total documents in database: 1,732.
+- Remaining parse failures: 0.
+- Missing source URLs: 0.
+- 0 failures out of 1,716 downloaded corpus files; 20 Schedule_2 entries share one source PDF and have distinct external IDs and hashes.
