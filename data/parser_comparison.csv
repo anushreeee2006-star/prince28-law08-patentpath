@@ -1,0 +1,19 @@
+file,parser,status,pages,characters,headings,tables,seconds,error
+data\raw\ip-india-cgpdtm\7fdd559b-1ff8-4a87-8c36-033e7356b39b-9c1fa2de.pdf,pymupdf,success,67,148067,191,13,8.409,
+data\raw\ip-india-cgpdtm\7fdd559b-1ff8-4a87-8c36-033e7356b39b-9c1fa2de.pdf,pypdf,success,67,146715,0,0,2.845,
+data\raw\ip-india-cgpdtm\e1adfe40-7af3-4180-ba04-2e0099c6dca5-825601cc.pdf,pymupdf,success,174,351343,493,180,32.382,
+data\raw\ip-india-cgpdtm\e1adfe40-7af3-4180-ba04-2e0099c6dca5-825601cc.pdf,pypdf,success,174,318569,0,0,7.087,
+data\raw\ip-india-cgpdtm\2748c8f6-ca59-4bb9-b5e9-690a7a934136-e149111f.pdf,pymupdf,failed,0,0,0,0,2.874,no_text_layer: 0 characters on 52 pages
+data\raw\ip-india-cgpdtm\2748c8f6-ca59-4bb9-b5e9-690a7a934136-e149111f.pdf,pypdf,failed,0,0,0,0,0.05,no_text_layer: almost no text on 52 pages
+data\raw\ip-india-cgpdtm\73b5bf10-b04e-4f45-abef-87ff117315dc-dccb9293.pdf,pymupdf,success,69,242921,177,0,8.547,
+data\raw\ip-india-cgpdtm\73b5bf10-b04e-4f45-abef-87ff117315dc-dccb9293.pdf,pypdf,success,69,241650,0,0,4.375,
+data\raw\ip-india-cgpdtm\8a163997-d0d1-45ed-a657-725b31c44f3f-d3b56477.pdf,pymupdf,failed,0,0,0,0,11.368,no_text_layer: 0 characters on 73 pages
+data\raw\ip-india-cgpdtm\8a163997-d0d1-45ed-a657-725b31c44f3f-d3b56477.pdf,pypdf,success,73,127818,0,0,1.822,
+data\raw\ip-india-cgpdtm\86c74a8b-b029-4b79-812a-d260b2f90368-3f1f5ca8.pdf,pymupdf,success,4,39452,0,35,1.033,
+data\raw\ip-india-cgpdtm\86c74a8b-b029-4b79-812a-d260b2f90368-3f1f5ca8.pdf,pypdf,success,4,8068,0,0,0.365,
+data\raw\ip-india-cgpdtm\d7bed07b-5c56-404b-a0c8-152b4bd18f0f-c9215741.pdf,pymupdf,failed,0,0,0,0,3.623,no_text_layer: 95 characters on 8 pages
+data\raw\ip-india-cgpdtm\d7bed07b-5c56-404b-a0c8-152b4bd18f0f-c9215741.pdf,pypdf,success,8,12788,0,0,0.659,
+data\raw\ip-india-cgpdtm\144d1bd8-7995-41f8-b38d-3d5a98e489ab-929b1111.pdf,pymupdf,failed,0,0,0,0,0.672,no_text_layer: 44 characters on 2 pages
+data\raw\ip-india-cgpdtm\144d1bd8-7995-41f8-b38d-3d5a98e489ab-929b1111.pdf,pypdf,success,2,4999,0,0,0.299,
+data\raw\ip-india-cgpdtm\04-form-3-9ae99311.pdf,pymupdf,failed,0,0,0,0,0.197,no_text_layer: 0 characters on 2 pages
+data\raw\ip-india-cgpdtm\04-form-3-9ae99311.pdf,pypdf,success,2,2160,0,0,0.072,

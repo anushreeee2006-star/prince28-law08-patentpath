@@ -212,3 +212,56 @@ EXPLAIN ANALYZE confirmed the normal planner behavior and verified that the GIN 
 - **Request timings:** In a separate fresh verification run, all 16 IP India source URLs downloaded successfully. Average request duration: 0.923 seconds; median: 0.255 seconds; slowest document request: 4.014 seconds. For FastAPI, the GitHub commit API request took 0.659 seconds and the single ZIP archive download took 8.396 seconds (19.465 MB). The ZIP measurement is archive-level, not 1,696 individual request timings.
 
 - **Retries:** None of the 16 IP India requests in the verification run needed more than one attempt. In the historical manifest, 0 of the 20 IP India records with an attempts field required more than one attempt. FastAPI files were extracted from one repository ZIP archive, so per-file retry counts are unavailable.
+
+## D07 - Parsing the corpus
+
+### Parser implementation
+- Added PDF parsing using PyMuPDF and pypdf.
+- Added HTML, Markdown, text and structured-data parsing.
+- Extracted page numbers, heading paths and Markdown content.
+- Added ParseFailure table to track parsing errors.
+- Added idempotent parsing to avoid duplicate documents.
+- Added Tesseract OCR fallback for scanned PDFs.
+
+### Full corpus results
+- Total downloaded files: 1,716
+- Initially parsed: 1,687
+- Initially failed: 7
+- Initially skipped: 22
+- Initial pages created: 4,499
+
+### OCR recovery
+- Installed Tesseract OCR 5.4.0.
+- Successfully recovered 5 scanned PDFs using OCR.
+- Additional pages created: 137
+- Remaining parse failures: 0
+
+### Idempotency verification
+- Second full run: parsed=0, failed=0, skipped=1,716, pages=0.
+- Confirmed that existing parsed documents were not duplicated.
+
+### Quality checks
+- Unit tests: 70 passed.
+- Ruff lint: Passed.
+- Ruff format: 54 files already formatted.
+
+### Known limitation
+- OCR extraction may not perfectly preserve complex tables, layouts or scanned text.
+
+### Parser comparison
+- Compared PyMuPDF and pypdf on all 9 PDFs available in data/raw.
+- PyMuPDF: 4 successful, 5 failed; 314 pages; 781,783 characters; 69.10 seconds.
+- pypdf: 8 successful, 1 failed; 399 pages; 862,767 characters; 17.57 seconds.
+- pypdf was faster and extracted more text in this sample.
+- PyMuPDF provides additional layout and table extraction capabilities.
+- Limitation: the corpus contains only 9 PDFs, so 10 unique PDF comparisons were not possible.
+- Detailed results are saved in data/parser_comparison.csv.
+
+### Retry and progress features
+- Added --retry-failed to process only files currently listed in parse_failures.
+- Successful retries remove their previous failure records.
+- Failed retries increment the attempts count.
+- Added progress summaries every 50 processed files and at the end.
+- Verified --retry-failed with zero remaining failures: 0 files processed.
+- Ruff lint and formatting passed.
+- Tests: 70 passed.
