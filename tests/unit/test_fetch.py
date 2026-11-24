@@ -525,3 +525,190 @@ async def test_fetch_sources_revalidates_etag_and_updates_content(tmp_path, monk
     latest = json.loads(manifest_path.read_text(encoding="utf-8").splitlines()[-1])
     assert latest["etag"] == '"v2"'
     assert latest["sha256"] == hashlib.sha256(new_content).hexdigest()
+
+
+@pytest.mark.asyncio
+async def test_fetch_sources_uploads_downloaded_file_to_r2(tmp_path, monkeypatch):
+    from types import SimpleNamespace
+
+    from patentpath.ingest import fetch as fetch_module
+
+    settings = SimpleNamespace(
+        r2_account_id="test-account",
+        r2_access_key_id="test-key",
+        r2_secret_access_key="test-secret",  # pragma: allowlist secret
+        r2_bucket_name="test-bucket",
+        r2_endpoint_url="https://test-account.r2.cloudflarestorage.com",
+        r2_region="auto",
+    )
+    monkeypatch.setattr(fetch_module, "get_settings", lambda: settings)
+
+    document_requests = []
+    uploads = []
+
+    async def handler(request):
+        if request.url.path == "/robots.txt":
+            return httpx.Response(404)
+
+        document_requests.append(request)
+        return httpx.Response(
+            200,
+            headers={"Content-Type": "application/pdf"},
+            content=b"%PDF-1.7 test document",
+        )
+
+    async def fake_upload(client, upload_settings, file_path, object_key, content_type):
+        uploads.append((file_path, object_key, content_type))
+        return {
+            "object_key": object_key,
+            "etag": '"r2-test"',
+            "bytes": file_path.stat().st_size,
+            "sha256": hashlib.sha256(file_path.read_bytes()).hexdigest(),
+            "storage": "cloudflare-r2",
+        }
+
+    monkeypatch.setattr(fetch_module, "upload_file", fake_upload)
+    monkeypatch.setattr(
+        fetch_module,
+        "make_client",
+        lambda max_concurrency=4: httpx.AsyncClient(transport=httpx.MockTransport(handler)),
+    )
+
+    src = Source(
+        url="https://example.org/patents-act.pdf",
+        source="Patent Act",
+        licence="Test licence",
+        title="Patents Act",
+    )
+
+    async def no_wait(seconds):
+        pass
+
+    result = await fetch_module.fetch_sources(
+        [src],
+        tmp_path,
+        tmp_path / "data" / "raw",
+        tmp_path / "data" / "manifest.jsonl",
+        delay=0,
+        retries=0,
+        sleep=no_wait,
+    )
+
+    assert result["downloaded"] == 1
+    assert len(document_requests) == 1
+    assert len(uploads) == 1
+    assert uploads[0][0].is_file()
+    assert uploads[0][1].startswith("data/raw/")
+    assert uploads[0][2] == "application/pdf"
+
+    record = json.loads(
+        (tmp_path / "data" / "manifest.jsonl").read_text(encoding="utf-8").splitlines()[-1]
+    )
+    assert record["r2_status"] == "uploaded"
+    assert record["r2_etag"] == '"r2-test"'
+    assert record["r2_storage"] == "cloudflare-r2"
+
+
+@pytest.mark.asyncio
+async def test_fetch_sources_retries_failed_r2_upload_without_redownloading(tmp_path, monkeypatch):
+    from types import SimpleNamespace
+
+    from patentpath.ingest import fetch as fetch_module
+
+    settings = SimpleNamespace(
+        r2_account_id="test-account",
+        r2_access_key_id="test-key",
+        r2_secret_access_key="test-secret",  # pragma: allowlist secret
+        r2_bucket_name="test-bucket",
+        r2_endpoint_url="https://test-account.r2.cloudflarestorage.com",
+        r2_region="auto",
+    )
+    monkeypatch.setattr(fetch_module, "get_settings", lambda: settings)
+
+    document_requests = []
+    upload_attempts = []
+
+    async def handler(request):
+        if request.url.path == "/robots.txt":
+            return httpx.Response(404)
+
+        document_requests.append(request)
+        return httpx.Response(
+            200,
+            headers={"Content-Type": "application/pdf"},
+            content=b"%PDF-1.7 retry document",
+        )
+
+    async def fake_upload(client, upload_settings, file_path, object_key, content_type):
+        upload_attempts.append(file_path)
+        if len(upload_attempts) == 1:
+            raise httpx.ConnectError("Simulated R2 outage")
+
+        return {
+            "object_key": object_key,
+            "etag": '"r2-retry"',
+            "bytes": file_path.stat().st_size,
+            "sha256": hashlib.sha256(file_path.read_bytes()).hexdigest(),
+            "storage": "cloudflare-r2",
+        }
+
+    monkeypatch.setattr(fetch_module, "upload_file", fake_upload)
+    monkeypatch.setattr(
+        fetch_module,
+        "make_client",
+        lambda max_concurrency=4: httpx.AsyncClient(transport=httpx.MockTransport(handler)),
+    )
+
+    src = Source(
+        url="https://example.org/retry-act.pdf",
+        source="Patent Act",
+        licence="Test licence",
+        title="Retry Act",
+    )
+
+    async def no_wait(seconds):
+        pass
+
+    first = await fetch_module.fetch_sources(
+        [src],
+        tmp_path,
+        tmp_path / "data" / "raw",
+        tmp_path / "data" / "manifest.jsonl",
+        delay=0,
+        retries=0,
+        sleep=no_wait,
+    )
+
+    assert first["downloaded"] == 1
+    assert len(document_requests) == 1
+    assert len(upload_attempts) == 1
+    assert upload_attempts[0].is_file()
+
+    first_record = json.loads(
+        (tmp_path / "data" / "manifest.jsonl").read_text(encoding="utf-8").splitlines()[-1]
+    )
+    assert first_record["r2_status"] == "failed"
+    assert "Simulated R2 outage" in first_record["r2_error"]
+
+    second = await fetch_module.fetch_sources(
+        [src],
+        tmp_path,
+        tmp_path / "data" / "raw",
+        tmp_path / "data" / "manifest.jsonl",
+        delay=0,
+        retries=0,
+        sleep=no_wait,
+    )
+
+    assert second["skipped"] == 1
+    assert second["downloaded"] == 0
+    assert len(document_requests) == 1
+    assert len(upload_attempts) == 2
+    assert upload_attempts[0] == upload_attempts[1]
+
+    latest = json.loads(
+        (tmp_path / "data" / "manifest.jsonl").read_text(encoding="utf-8").splitlines()[-1]
+    )
+    assert latest["r2_status"] == "uploaded"
+    assert latest["r2_etag"] == '"r2-retry"'
+    assert "r2_error" not in latest

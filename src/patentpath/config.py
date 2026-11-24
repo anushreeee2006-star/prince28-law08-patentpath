@@ -20,6 +20,14 @@ class Settings(BaseSettings):
     data_file: Path = Path("data/sample_records.json")
     database_url: str = "postgresql://localhost:5432/patentpath"
 
+    # Optional Cloudflare R2 object storage.
+    r2_account_id: str = ""
+    r2_access_key_id: str = ""
+    r2_secret_access_key: str = ""
+    r2_bucket_name: str = ""
+    r2_endpoint_url: str = ""
+    r2_region: str = "auto"
+
     # The commit this image was built from. CI sets it.
     git_sha: str = "dev"
 

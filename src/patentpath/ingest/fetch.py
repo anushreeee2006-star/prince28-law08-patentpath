@@ -17,6 +17,9 @@ from urllib.parse import unquote, urlsplit
 import httpx
 from protego import Protego
 
+from patentpath.config import get_settings
+from patentpath.ingest.object_storage import upload_file
+
 USER_AGENT = (
     "PatentPathBot/0.1 "
     "(student project; "
@@ -439,7 +442,7 @@ async def fetch_all(
     sleep: Sleep = asyncio.sleep,
     on_result: Callable[[dict], None] | None = None,
 ) -> dict:
-    """Fetch all sources, recording each result promptly for resume support."""
+    "Fetch sources locally and optionally mirror downloaded files to R2."
     if not 1 <= max_concurrency <= 4:
         raise ValueError("max_concurrency must be between 1 and 4")
     if per_host_delay < 0 or max_attempts < 1:
@@ -447,6 +450,16 @@ async def fetch_all(
 
     raw_dir = raw_dir or root / "data" / "raw"
     manifest_path = manifest_path or root / "data" / "manifest.jsonl"
+
+    r2_settings = get_settings()
+    r2_values = (
+        r2_settings.r2_account_id,
+        r2_settings.r2_access_key_id,
+        r2_settings.r2_secret_access_key,
+        r2_settings.r2_bucket_name,
+        r2_settings.r2_endpoint_url,
+    )
+    r2_requested = any(value.strip() for value in r2_values)
 
     manifest = Manifest(manifest_path)
     gate = HostGate(per_host_delay, sleep)
@@ -460,6 +473,36 @@ async def fetch_all(
         "errors": [],
     }
 
+    async def mirror_to_r2(
+        client_instance: httpx.AsyncClient,
+        record: dict,
+    ) -> bool:
+        if not r2_requested or record.get("r2_status") == "uploaded":
+            return False
+
+        try:
+            local_path = root / record["path"]
+            result = await upload_file(
+                client_instance,
+                r2_settings,
+                local_path,
+                record["path"],
+                record.get("content_type") or "application/octet-stream",
+            )
+        except (httpx.HTTPError, ValueError, OSError) as exc:
+            record["r2_status"] = "failed"
+            record["r2_error"] = str(exc)
+        else:
+            record["r2_status"] = "uploaded"
+            record["r2_object_key"] = result["object_key"]
+            record["r2_etag"] = result.get("etag")
+            record["r2_bytes"] = result["bytes"]
+            record["r2_sha256"] = result["sha256"]
+            record["r2_storage"] = result["storage"]
+            record.pop("r2_error", None)
+
+        return True
+
     async def run(client_instance: httpx.AsyncClient) -> None:
         robots = Robots(client_instance)
 
@@ -468,6 +511,14 @@ async def fetch_all(
             is_done = manifest.done(src.url, root)
 
             if is_done and not (previous_record or {}).get("etag"):
+                record = dict(previous_record)
+                attempted_upload = await mirror_to_r2(client_instance, record)
+
+                if attempted_upload:
+                    manifest.add(record)
+                    if on_result is not None:
+                        on_result(record)
+
                 summary["skipped"] += 1
                 return
 
@@ -483,6 +534,9 @@ async def fetch_all(
                 sleep=sleep,
                 previous_record=previous_record if is_done else None,
             )
+
+            if record["status"] == "downloaded":
+                await mirror_to_r2(client_instance, record)
 
             if record["status"] in {"downloaded", "blocked", "failed"}:
                 manifest.add(record)
