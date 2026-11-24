@@ -1,4 +1,4 @@
-﻿## D04 - Compose Health and Recovery Evidence
+## D04 - Compose Health and Recovery Evidence
 
 ### Migration
 - First run: records=20 inserted=20 updated=0 unchanged=0
@@ -205,6 +205,10 @@ EXPLAIN ANALYZE confirmed the normal planner behavior and verified that the GIN 
 
 ## Stretch 4 - Your crawl, in numbers
 
-- **Files and size by source:** IP India (CGPDTM): 20 downloaded files, 10.561 MB; FastAPI: 1,696 downloaded files, 12.806 MB. Total: 1,716 files and 23.367 MB.
-- **Longest collection window:** IP India (CGPDTM), 67 minutes 46 seconds (14:19:24–15:27:10 UTC), compared with FastAPI at 54 seconds (14:06:41–14:07:35 UTC). These durations are calculated from the earliest and latest manifest timestamps per source; they are collection windows, not individual request durations.
-- **Retries:** 0 of the 20 IP India records with an attempts field required more than one attempt. The 1,696 FastAPI records do not contain an attempts field, so their retry count cannot be determined from the manifest.
+- **Files and size by source:** Historical manifest totals: IP India (CGPDTM): 20 downloaded files, 10.561 MB; FastAPI: 1,696 extracted files, 12.806 MB. Total: 1,716 files and 23.367 MB.
+
+- **Collection windows:** IP India: 67 minutes 46 seconds (14:19:24-15:27:10 UTC); FastAPI: 54 seconds (14:06:41-14:07:35 UTC). These are collection windows calculated from manifest timestamps, not individual request durations.
+
+- **Request timings:** In a separate fresh verification run, all 16 IP India source URLs downloaded successfully. Average request duration: 0.923 seconds; median: 0.255 seconds; slowest document request: 4.014 seconds. For FastAPI, the GitHub commit API request took 0.659 seconds and the single ZIP archive download took 8.396 seconds (19.465 MB). The ZIP measurement is archive-level, not 1,696 individual request timings.
+
+- **Retries:** None of the 16 IP India requests in the verification run needed more than one attempt. In the historical manifest, 0 of the 20 IP India records with an attempts field required more than one attempt. FastAPI files were extracted from one repository ZIP archive, so per-file retry counts are unavailable.
