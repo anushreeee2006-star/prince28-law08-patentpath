@@ -1,4 +1,4 @@
-## D04 - Compose Health and Recovery Evidence
+﻿## D04 - Compose Health and Recovery Evidence
 
 ### Migration
 - First run: records=20 inserted=20 updated=0 unchanged=0
@@ -97,7 +97,7 @@ Lead time was measured from pull request merge to successful production smoke te
 | #7 | #9 | 14:42:30 | 14:44:24 | 1 min 54 sec |
 
 - Average change lead time: 2 min 5 sec (124.67 seconds).
-- Slowest step: Smoke test live deployment (26â€“27 seconds).
+- Slowest step: Smoke test live deployment (26Ã¢â‚¬â€œ27 seconds).
 - All three measured CD runs completed successfully.
 
 ## D03 - PostgreSQL EXPLAIN ANALYZE and GIN Index Evidence
@@ -172,7 +172,7 @@ EXPLAIN ANALYZE confirmed the normal planner behavior and verified that the GIN 
 - Recovery test: temporarily deleted the Form 3 PDF; rerun restored it.
 - Existing FastAPI corpus was preserved.
 
-## D06 · Collecting the corpus
+## D06 Â· Collecting the corpus
 
 - Start target: Act + Rules + Office Manual
 - Collected today: 16 files, 451 PDF pages, 7.48 MB (IP India corpus; 7 HTML files also collected)
@@ -272,3 +272,29 @@ EXPLAIN ANALYZE confirmed the normal planner behavior and verified that the GIN 
 - Remaining parse failures: 0.
 - Missing source URLs: 0.
 - 0 failures out of 1,716 downloaded corpus files; 20 Schedule_2 entries share one source PDF and have distinct external IDs and hashes.
+
+<!-- STEP 5 PARSER COMPARISON START -->
+### Step 5 - Ten hard files parser comparison
+
+Compared 3 challenging PDFs and all 7 available HTML files.
+PDF parsers: PyMuPDF and pypdf. HTML parsers: Trafilatura and strip-tags.
+
+| File | Type | Parser 1 result | Parser 2 result | Better | Better, why |
+|---|---|---|---|---|---|
+| epo-guidelines-2026.pdf | PDF | pymupdf: success: 2722361 chars, 3225 headings, 0 tables, 6.373s | pypdf: success: 2732329 chars, 206 headings, 0 tables, 76.194s | pymupdf | Both extracted 1,092 pages and similar text volume; PyMuPDF was much faster (6.373s vs 76.194s). Heading counts alone do not prove heading accuracy. |
+| 2748c8f6-ca59-4bb9-b5e9-690a7a934136-e149111f.pdf | PDF | pymupdf: Failed (3.293s) | pypdf: Failed (0.04s) | Neither | Both parsers failed; OCR or manual recovery is needed. |
+| 86c74a8b-b029-4b79-812a-d260b2f90368-3f1f5ca8.pdf | PDF | pymupdf: success: 39452 chars, 0 headings, 35 tables, 1.014s | pypdf: success: 8068 chars, 0 headings, 0 tables, 0.352s | pymupdf | Extracted 35 tables and 39,452 characters, compared with pypdf's 0 tables and 8,068 characters; verify table layout against the source. |
+| forms-and-official-fees-78ff0e5f.html | HTML | trafilatura: success: 948 chars, 0 headings, 3 tables, 0.151s | strip-tags: success: 18437 chars, 8 headings, 1 tables, 0.026s | trafilatura | Manual inspection confirmed the fees table in Markdown; strip-tags retained extensive unrelated navigation. |
+| basics-of-patents-593130e6.html | HTML | trafilatura: success: 2079 chars, 0 headings, 0 tables, 0.131s | strip-tags: success: 19546 chars, 9 headings, 0 tables, 0.025s | trafilatura | Manual inspection confirmed useful patent sections and bullet content; strip-tags retained navigation noise. |
+| faqs-d3efbe1e.html | HTML | trafilatura: success: 211 chars, 0 headings, 0 tables, 0.209s | strip-tags: success: 17474 chars, 7 headings, 0 tables, 0.025s | Neither | Trafilatura extracted only a PDF-unavailable message; strip-tags mainly retained navigation, not FAQ answers. |
+| which-inventions-can-be-patented-ee337de8.html | HTML | trafilatura: success: 1402 chars, 0 headings, 0 tables, 0.126s | strip-tags: success: 18875 chars, 7 headings, 0 tables, 0.024s | trafilatura | Manual inspection confirmed patentability criteria and explanations; strip-tags retained navigation noise. |
+| inpass-16c188a5.html | HTML | trafilatura: success: 318 chars, 0 headings, 0 tables, 0.161s | strip-tags: success: 17652 chars, 8 headings, 0 tables, 0.024s | trafilatura | Extracted the relevant InPASS search description without the extensive navigation retained by strip-tags. |
+| filing-process-step-by-step-8b5fef91.html | HTML | trafilatura: success: 227 chars, 0 headings, 0 tables, 0.198s | strip-tags: success: 17511 chars, 7 headings, 0 tables, 0.025s | Neither | Trafilatura extracted Coming Soon/PDF-unavailable messages; strip-tags mainly retained navigation. |
+| rules-patents-2003-5b28698f.html | HTML | trafilatura: success: 602 chars, 0 headings, 0 tables, 0.044s | strip-tags: success: 974 chars, 2 headings, 0 tables, 0.002s | trafilatura | Extracted the title, table of contents and disclaimers cleanly; strip-tags duplicated content and included navigation. |
+
+**Inspection note:** Parser metrics alone do not prove text quality. Compare extracted pages with the original source, especially headings, tables, repeated headers/footers and unwanted characters.
+
+**PDF note:** PyMuPDF table extraction was disabled for the EPO Guidelines PDF to avoid excessive processing time; default parser behaviour is unchanged.
+
+Detailed per-parser results: `data/parser_comparison.csv`.
+<!-- STEP 5 PARSER COMPARISON END -->
