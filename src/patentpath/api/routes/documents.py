@@ -66,3 +66,19 @@ async def get_document(
         )
 
     return document
+
+
+@router.get("/{document_id}/pages")
+async def get_document_page(
+    document_id: str,
+    repository: RepositoryDependency,
+    page_no: int = Query(default=1, ge=1),
+) -> dict[str, Any]:
+    """Retrieve one document page with its headings."""
+    page = await repository.get_page(document_id, page_no)
+    if page is None:
+        raise HTTPException(
+            status_code=404,
+            detail=f"No page {page_no} for document {document_id}",
+        )
+    return page
