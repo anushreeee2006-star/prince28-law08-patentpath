@@ -202,3 +202,9 @@ EXPLAIN ANALYZE confirmed the normal planner behavior and verified that the GIN 
 - The number that surprised me most, and why (2 lines):
 
 ### One thing that went wrong today, and how I fixed it
+
+## Stretch 4 - Your crawl, in numbers
+
+- **Files and size by source:** IP India (CGPDTM): 20 downloaded files, 10.561 MB; FastAPI: 1,696 downloaded files, 12.806 MB. Total: 1,716 files and 23.367 MB.
+- **Longest collection window:** IP India (CGPDTM), 67 minutes 46 seconds (14:19:24–15:27:10 UTC), compared with FastAPI at 54 seconds (14:06:41–14:07:35 UTC). These durations are calculated from the earliest and latest manifest timestamps per source; they are collection windows, not individual request durations.
+- **Retries:** 0 of the 20 IP India records with an attempts field required more than one attempt. The 1,696 FastAPI records do not contain an attempts field, so their retry count cannot be determined from the manifest.
