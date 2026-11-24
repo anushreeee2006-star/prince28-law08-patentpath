@@ -249,12 +249,13 @@ EXPLAIN ANALYZE confirmed the normal planner behavior and verified that the GIN 
 - OCR extraction may not perfectly preserve complex tables, layouts or scanned text.
 
 ### Parser comparison
-- Compared PyMuPDF and pypdf on all 9 PDFs available in data/raw.
-- PyMuPDF: 4 successful, 5 failed; 314 pages; 781,783 characters; 69.10 seconds.
-- pypdf: 8 successful, 1 failed; 399 pages; 862,767 characters; 17.57 seconds.
-- pypdf was faster and extracted more text in this sample.
-- PyMuPDF provides additional layout and table extraction capabilities.
-- Limitation: the corpus contains only 9 PDFs, so 10 unique PDF comparisons were not possible.
+- Added the official EPO Guidelines 2026 PDF to the corpus; total comparison sample is now 10 PDFs.
+- Compared PyMuPDF and pypdf on all 10 PDFs.
+- PyMuPDF: 5 successful, 5 failed; 1,406 pages; 3,504,144 characters; 141.927 seconds.
+- pypdf: 9 successful, 1 failed; 1,491 pages; 3,595,096 characters; 187.443 seconds.
+- pypdf succeeded on more files in this sample, while PyMuPDF was faster overall.
+- EPO PDF: both parsers extracted 1,092 pages. PyMuPDF took 13.863 seconds; pypdf took 150.438 seconds.
+- Disabled table detection only for the EPO PDF during comparison to avoid excessive processing time. Default parser table extraction remains enabled.
 - Detailed results are saved in data/parser_comparison.csv.
 
 ### Retry and progress features
