@@ -1,4 +1,4 @@
-# Dataset: PatentPath
+﻿# Dataset: PatentPath
 
 Guides student inventors through Indian patent basics: patentability, procedure and fees.
 
@@ -18,6 +18,8 @@ Public law and office manuals, subject to the source's reuse conditions.
 
 - Every answer links to the original document.
 - No personal data is collected.
+
+Parsing coverage: 100% of files
 
 <!-- generated:start -->
 ## Measured corpus
