@@ -18,13 +18,20 @@ files = sorted(
     reverse=True,
 )[:10]
 
+
+def parse_pymupdf_for_comparison(path: Path):
+    if path.name == "epo-guidelines-2026.pdf":
+        return parse_pdf_pymupdf(path, extract_tables=False)
+    return parse_pdf_pymupdf(path)
+
+
 results = []
 
 for index, path in enumerate(files, 1):
     print(f"\n[{index}/10] {path.relative_to(ROOT)}")
 
     for parser_name, parser in [
-        ("pymupdf", parse_pdf_pymupdf),
+        ("pymupdf", parse_pymupdf_for_comparison),
         ("pypdf", parse_pdf_pypdf),
     ]:
         started = time.perf_counter()

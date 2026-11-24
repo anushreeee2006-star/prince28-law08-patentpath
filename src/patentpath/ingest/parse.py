@@ -200,7 +200,7 @@ def _open_pdf(path: Path) -> pymupdf.Document:
     return doc
 
 
-def parse_pdf_pymupdf(path: Path) -> ParsedDoc:
+def parse_pdf_pymupdf(path: Path, extract_tables: bool = True) -> ParsedDoc:
     """Extract PDF text, headings and detectable tables using PyMuPDF."""
     doc = _open_pdf(path)
     body = _body_size(doc)
@@ -209,7 +209,7 @@ def parse_pdf_pymupdf(path: Path) -> ParsedDoc:
     chars = 0
 
     for page in doc:
-        tables = list(page.find_tables().tables) if page.get_cdrawings() else []
+        tables = list(page.find_tables().tables) if extract_tables and page.get_cdrawings() else []
 
         used: set[int] = set()
         out: list[str] = []
