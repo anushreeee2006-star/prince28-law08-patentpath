@@ -21,6 +21,7 @@ MANIFEST = Path("data/manifest.jsonl")
 async def main(
     limit: int | None = None,
     retry_failed: bool = False,
+    ocr_language: str | None = None,
 ) -> None:
     if not MANIFEST.exists():
         raise SystemExit(f"Manifest not found: {MANIFEST}")
@@ -73,7 +74,7 @@ async def main(
                             raise
 
                         print(f"[{index}/{total}] Trying OCR: {path}")
-                        parsed = parse_pdf_ocr(path)
+                        parsed = parse_pdf_ocr(path, language=ocr_language or "eng")
 
                     if not parsed.pages:
                         raise ParseError("empty", "Parser returned no pages")
@@ -130,5 +131,11 @@ if __name__ == "__main__":
         action="store_true",
         help="Retry only files currently recorded in parse_failures.",
     )
+    parser.add_argument(
+        "--ocr",
+        type=str,
+        default=None,
+        help="OCR language(s), for example eng or eng+tam.",
+    )
     args = parser.parse_args()
-    asyncio.run(main(args.limit, args.retry_failed))
+    asyncio.run(main(args.limit, args.retry_failed, args.ocr))
