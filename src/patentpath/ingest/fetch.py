@@ -294,12 +294,14 @@ async def _download(
     headers: dict[str, str] | None = None,
 ) -> dict:
     """Stream a document to a temporary file and rename it when complete."""
+    request_started = time.perf_counter()
     async with client.stream("GET", src.url, headers=headers) as response:
         if response.status_code == 304:
             return {
                 "not_modified": True,
                 "http_status": 304,
                 "etag": response.headers.get("ETag"),
+                "request_duration_seconds": round(time.perf_counter() - request_started, 6),
             }
 
         if response.status_code != 200:
@@ -337,6 +339,7 @@ async def _download(
         "content_type": content_type.split(";")[0].strip(),
         "http_status": 200,
         "etag": response.headers.get("ETag"),
+        "request_duration_seconds": round(time.perf_counter() - request_started, 6),
     }
 
 
@@ -393,6 +396,7 @@ async def fetch_one(
                         "etag": previous_record["etag"],
                         "attempts": attempt,
                         "revalidated": True,
+                        "request_duration_seconds": result["request_duration_seconds"],
                         "fetched_at": now_iso(),
                     }
 

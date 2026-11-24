@@ -297,6 +297,8 @@ async def test_download_saves_file_and_sha256(tmp_path):
     assert result["sha256"] == hashlib.sha256(content).hexdigest()
     assert result["content_type"] == "application/pdf"
     assert result["http_status"] == 200
+    assert isinstance(result["request_duration_seconds"], float)
+    assert result["request_duration_seconds"] >= 0
     assert not list(raw_dir.rglob("*.part"))
 
 
@@ -508,6 +510,11 @@ async def test_fetch_sources_revalidates_etag_and_updates_content(tmp_path, monk
     assert second["downloaded"] == 0
     assert len(document_requests) == 2
     assert target.read_bytes() == old_content
+
+    not_modified = json.loads(manifest_path.read_text(encoding="utf-8").splitlines()[-1])
+    assert not_modified["http_status"] == 304
+    assert isinstance(not_modified["request_duration_seconds"], float)
+    assert not_modified["request_duration_seconds"] >= 0
 
     third = await fetch_sources(
         [src],
