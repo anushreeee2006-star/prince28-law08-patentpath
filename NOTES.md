@@ -379,3 +379,55 @@ Tested the Markdown parser using `data/raw/fastapi-fastapi/docs/de/llm-prompt.md
 ### Step 5.4 - Usage and database verification
 - Neon SQL verification: PASS. Successful Gemini call, failed Gemini attempts, Groq fallback records, token counts, latency, estimated cost, and fallback flags are stored in llm_calls.
 - Recovery verified: restored Gemini model completed successfully with fallback=False.
+
+### Step 6 - Render deployment and live LLM verification
+
+#### Docker and deployment
+- Docker prompt fix: PASS.
+- Added `COPY --chown=app:app prompts ./prompts` to the Dockerfile.
+- Local Docker image build: PASS.
+- Render deployment health: PASS.
+- Live health endpoint: `/health`.
+- Health status: `ok`.
+- Deployed Git SHA: `f5ff95b100251928f6ed18787dd57a77e73fc022`.
+
+#### First live chat request
+- Endpoint: `https://patentpath.onrender.com`
+- Question: What is a provisional patent specification?
+- Result: PASS. A response was returned.
+- Provider: Groq (fallback).
+- Model: `openai/gpt-oss-20b`.
+- Input tokens: 225.
+- Output tokens: 802.
+- Estimated request cost: INR 0.02446.
+- Attempts: 1.
+- Fallback used: Yes.
+- First-word latency: 3.951 seconds.
+- Total response time: 5.112 seconds.
+
+#### Live usage endpoint
+- Endpoint: `/v1/usage`.
+- Date: 2026-11-25.
+- Total API calls: 72.
+- Errors: 18.
+- Fallbacks: 16.
+- Input tokens: 14,367.
+- Output tokens: 18,358.
+- Estimated total cost: INR 0.6574.
+
+#### Second live chat request
+- Result: PASS. A response was returned.
+- Provider: Groq (fallback).
+- Model: openai/gpt-oss-20b.
+- Input tokens: 225.
+- Output tokens: 300.
+- Estimated request cost: INR 0.010153.
+- Attempts: 1.
+- Fallback used: Yes.
+- First-word latency: 4.037 seconds.
+- Total response time: 5.261 seconds.
+
+#### Deployment issue and fix
+- Initial Render deployment failed because `prompts/chat_system_v1.md` was missing from the Docker runtime image.
+- Fixed by copying the prompts directory into the Docker image.
+- Local Docker build and subsequent Render health check passed.
