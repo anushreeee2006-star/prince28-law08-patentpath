@@ -17,7 +17,7 @@ def main() -> None:
     )
     parser.add_argument(
         "--url",
-        default="http://localhost:8000",
+        default="http://127.0.0.1:8000",
         help="PatentPath API base URL",
     )
     parser.add_argument(

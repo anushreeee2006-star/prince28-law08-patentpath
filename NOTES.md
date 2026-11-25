@@ -327,7 +327,9 @@ Tested the Markdown parser using `data/raw/fastapi-fastapi/docs/de/llm-prompt.md
 - Some headings repeat across pages because the document is split into multiple pages.
 - Result: plain-text parser heading extraction works on this Markdown sample.
 
-## Day 8 - Final LLM latency measurement
+## Day 8 - Final LLM latency verification
+
+### Initial Gemini measurement
 
 - Provider: Gemini
 - Model: gemini-3.6-flash
@@ -335,5 +337,23 @@ Tested the Markdown parser using `data/raw/fastapi-fastapi/docs/de/llm-prompt.md
 - Target: less than 1.5 seconds
 - Result: NOT PASS
 - Total response time: 27.032 seconds
+
+### Optimized Groq measurement
+
+- Primary provider: Groq
+- Model: openai/gpt-oss-20b
+- Fallback provider: Gemini
+- First-word latency across 5 consecutive tests: 0.693-0.915 seconds
+- Average first-word latency: approximately 0.802 seconds
+- First-word target: less than 1.5 seconds
+- Result: PASS in all 5 measured runs
+- Additional streaming verification: 0.706 seconds first-word latency
+- Streaming total response time: 1.136 seconds
+- Non-streaming JSON latency: 1.405 seconds
+- JSON output: successful
+- Fallback used in verification: No
 - Request ID log matching: PASS
-- Chat API and Gemini response: PASS
+- Unit tests: 99 passed
+- Ruff lint and format checks: PASS
+- Local CLI uses 127.0.0.1 to avoid Windows localhost resolution delay
+- Patent documents are not connected to the LLM yet; responses use general model knowledge
