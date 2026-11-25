@@ -1,6 +1,7 @@
-"""Chat and LLM usage endpoints."""
+"""POST /v1/chat and GET /v1/usage."""
 
 import json
+from collections.abc import AsyncIterator
 from typing import Any
 
 from fastapi import APIRouter, HTTPException, Query, Request
@@ -23,21 +24,23 @@ class ChatRequest(BaseModel):
 
 
 def result_summary(result: LLMResult) -> dict[str, Any]:
-    """Return model-call metadata without duplicating the answer text."""
+    """Return model metadata without duplicating the answer."""
     return {
         "provider": result.provider,
         "model": result.model,
         "tokens_in": result.tokens_in,
         "tokens_out": result.tokens_out,
         "latency_ms": result.latency_ms,
+        "attempts": result.attempts,
         "fallback_used": result.fallback_used,
         "cost_inr": result.cost_inr,
     }
 
 
-def sse(event: str, data: dict[str, Any]) -> str:
-    """Encode one Server-Sent Event."""
-    return f"event: {event}\ndata: {json.dumps(data, ensure_ascii=False)}\n\n"
+def sse(data: dict[str, Any], event: str = "") -> str:
+    """Encode one server-sent event."""
+    head = f"event: {event}\n" if event else ""
+    return f"{head}data: {json.dumps(data, ensure_ascii=False)}\n\n"
 
 
 @router.post("/chat")
@@ -46,7 +49,7 @@ async def chat(
     request: Request,
     gateway: GatewayDependency,
 ):
-    """Answer a PatentPath question, optionally streaming the response."""
+    """Answer a PatentPath question, optionally streaming."""
     messages = [
         {"role": "system", "content": request.app.state.system_prompt},
         {"role": "user", "content": body.message},
@@ -66,10 +69,7 @@ async def chat(
                 detail="PatentPath's language models are temporarily unavailable.",
             ) from exc
 
-        return {
-            "answer": result.text,
-            "summary": result_summary(result),
-        }
+        return {"answer": result.text, **result_summary(result)}
 
     stream = gateway.stream(
         messages,
@@ -86,23 +86,22 @@ async def chat(
             detail="PatentPath's language models are temporarily unavailable.",
         ) from exc
 
-    async def events():
-        try:
-            if isinstance(first, str):
-                yield sse("delta", {"text": first})
-            elif isinstance(first, LLMResult):
-                yield sse("done", {"summary": result_summary(first)})
-                return
+    async def events() -> AsyncIterator[str]:
+        item: str | LLMResult = first
 
-            async for item in stream:
-                if isinstance(item, str):
-                    yield sse("delta", {"text": item})
-                elif isinstance(item, LLMResult):
-                    yield sse("done", {"summary": result_summary(item)})
+        try:
+            while True:
+                if isinstance(item, LLMResult):
+                    yield sse(result_summary(item), event="done")
+                    return
+
+                yield sse({"delta": item})
+                item = await anext(stream)
+
         except LLMUnavailable:
             yield sse(
-                "error",
-                {"message": "The model stopped while generating the answer."},
+                {"detail": "The model stopped while generating the answer."},
+                event="error",
             )
 
     return StreamingResponse(
@@ -121,7 +120,10 @@ async def usage(
     days: int = Query(default=7, ge=1, le=90),
 ):
     """Return daily LLM usage and estimated costs."""
+    rows = await repository.by_day(days)
+
     return {
-        "days": days,
-        "items": await repository.by_day(days),
+        "days": rows,
+        "total_cost_inr": round(sum(row["cost_inr"] for row in rows), 4),
+        "calls": sum(row["calls"] for row in rows),
     }

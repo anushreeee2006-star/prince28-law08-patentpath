@@ -39,6 +39,7 @@ def main() -> None:
 
     started = time.perf_counter()
     first_word_time = None
+    current_event = ""
 
     try:
         with httpx.Client(timeout=120.0) as client:
@@ -52,36 +53,46 @@ def main() -> None:
                 response.raise_for_status()
 
                 for line in response.iter_lines():
+                    if line.startswith("event: "):
+                        current_event = line[7:].strip()
+                        continue
+
                     if not line.startswith("data: "):
                         continue
 
                     event = json.loads(line[6:])
 
-                    if "text" in event:
-                        if first_word_time is None and event["text"].strip():
-                            first_word_time = time.perf_counter() - started
+                    if current_event == "error":
+                        print(f"\nError: {event.get('detail', 'Streaming failed')}")
+                        continue
 
-                        print(event["text"], end="", flush=True)
-
-                    elif "summary" in event:
-                        summary = event["summary"]
+                    if current_event == "done":
                         total_time = time.perf_counter() - started
 
                         print("\n\n--- Usage ---")
-                        print(f"Provider: {summary.get('provider', 'unknown')}")
-                        print(f"Model: {summary.get('model', 'unknown')}")
-                        print(f"Input tokens: {summary.get('tokens_in', 0)}")
-                        print(f"Output tokens: {summary.get('tokens_out', 0)}")
-                        print(f"Cost (INR): {summary.get('cost_inr', 0)}")
-                        print(f"Fallback used: {summary.get('fallback_used', False)}")
+                        print(f"Provider: {event.get('provider', 'unknown')}")
+                        print(f"Model: {event.get('model', 'unknown')}")
+                        print(f"Input tokens: {event.get('tokens_in', 0)}")
+                        print(f"Output tokens: {event.get('tokens_out', 0)}")
+                        print(f"Cost (INR): {event.get('cost_inr', 0)}")
+                        print(f"Attempts: {event.get('attempts', 0)}")
+                        print(f"Fallback used: {event.get('fallback_used', False)}")
 
                         if first_word_time is not None:
                             print(f"First-word latency: {first_word_time:.3f} sec")
 
                         print(f"Total time: {total_time:.3f} sec")
+                        continue
 
-                    elif "message" in event:
-                        print(f"\nError: {event['message']}")
+                    if "delta" in event:
+                        text = event["delta"]
+
+                        if first_word_time is None and text.strip():
+                            first_word_time = time.perf_counter() - started
+
+                        print(text, end="", flush=True)
+
+                    current_event = ""
 
                 print()
 
