@@ -1,4 +1,4 @@
-﻿
+
 # syntax=docker/dockerfile:1
 
 # ---------- Stage 1: build the virtual environment ----------
@@ -32,6 +32,7 @@ COPY --chown=app:app alembic.ini ./
 COPY --chown=app:app migrations ./migrations
 COPY --chown=app:app scripts ./scripts
 COPY --chown=app:app data ./data
+COPY --chown=app:app prompts ./prompts
 
 ARG GIT_SHA=dev
 ENV GIT_SHA=${GIT_SHA}
