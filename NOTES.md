@@ -326,3 +326,14 @@ Tested the Markdown parser using `data/raw/fastapi-fastapi/docs/de/llm-prompt.md
 - Text content was readable and Markdown heading markers were preserved in the extracted text.
 - Some headings repeat across pages because the document is split into multiple pages.
 - Result: plain-text parser heading extraction works on this Markdown sample.
+
+## Day 8 - Final LLM latency measurement
+
+- Provider: Gemini
+- Model: gemini-3.6-flash
+- First-word latency: 21.726 seconds
+- Target: less than 1.5 seconds
+- Result: NOT PASS
+- Total response time: 27.032 seconds
+- Request ID log matching: PASS
+- Chat API and Gemini response: PASS
