@@ -10,9 +10,11 @@ from patentpath.api.errors import (
     validation_exception_handler,
 )
 from patentpath.api.middleware import RequestLoggingMiddleware
-from patentpath.api.routes import documents, health
+from patentpath.api.routes import chat, documents, health
 from patentpath.config import Settings, get_settings
-from patentpath.db.session import engine
+from patentpath.db.llm_calls import make_recorder
+from patentpath.db.session import AsyncSessionLocal, engine
+from patentpath.llm.gateway import build_gateway
 from patentpath.logging_setup import setup_logging
 
 
@@ -32,6 +34,14 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         lifespan=lifespan,
     )
 
+    app.state.gateway = build_gateway(
+        settings,
+        recorder=make_recorder(AsyncSessionLocal),
+    )
+    app.state.system_prompt = (settings.prompts_dir / "chat_system_v1.md").read_text(
+        encoding="utf-8"
+    )
+
     app.add_middleware(RequestLoggingMiddleware)
 
     app.add_exception_handler(404, http_exception_handler)
@@ -42,5 +52,6 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     app.include_router(health.router)
     app.include_router(documents.router)
+    app.include_router(chat.router)
 
     return app
