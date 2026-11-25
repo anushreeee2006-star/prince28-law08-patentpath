@@ -374,19 +374,19 @@ class LLMGateway:
 
 
 def build_gateway(settings: Settings, recorder: Recorder | None = None) -> LLMGateway:
-    """Primary = Gemini, fallback = Groq. A provider without an API key is left out."""
+    """Primary = Groq, fallback = Gemini. A provider without an API key is left out."""
     wanted = [
-        (
-            "gemini",
-            settings.llm_primary_base_url,
-            settings.gemini_api_key,
-            settings.llm_primary_model,
-        ),
         (
             "groq",
             settings.llm_fallback_base_url,
             settings.groq_api_key,
             settings.llm_fallback_model,
+        ),
+        (
+            "gemini",
+            settings.llm_primary_base_url,
+            settings.gemini_api_key,
+            settings.llm_primary_model,
         ),
     ]
     providers = [
