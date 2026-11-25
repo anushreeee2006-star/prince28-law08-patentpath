@@ -267,7 +267,13 @@ class LLMGateway:
             "prompt_version": prompt_version,
             **fields,
         }
-        logger.info("llm call %s %s %s", provider.name, provider.model, fields.get("status"))
+        logger.info(
+            "llm call %s %s %s",
+            provider.name,
+            provider.model,
+            fields.get("status"),
+            extra={"request_id": request_id_ctx.get()},
+        )
         if self._recorder:
             try:
                 await self._recorder(row)

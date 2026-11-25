@@ -18,6 +18,15 @@ class JsonFormatter(logging.Formatter):
             "msg": record.getMessage(),
         }
 
+        request_id = getattr(record, "request_id", None)
+        if request_id:
+            log_data["request_id"] = request_id
+
+        for field in ("method", "path", "status_code", "duration_ms"):
+            value = getattr(record, field, None)
+            if value is not None:
+                log_data[field] = value
+
         if record.exc_info:
             log_data["exception"] = self.formatException(record.exc_info)
 
