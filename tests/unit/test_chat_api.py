@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 
 from patentpath.api.deps import get_gateway, get_usage_repository
-from patentpath.llm.gateway import LLMResult, LLMUnavailable
+from patentpath.llm.gateway import FakeLLM, LLMGateway, LLMResult, LLMUnavailable
 
 
 def make_result() -> LLMResult:
@@ -143,3 +143,50 @@ def test_usage_endpoint(client):
     assert body["days"][0]["calls"] == 2
     assert body["total_cost_inr"] == 0.25
     assert body["calls"] == 2
+
+
+def test_llm_status_returns_configured_providers(client):
+    gateway = LLMGateway(
+        [
+            FakeLLM("gemini", "gemini-3.8-flash"),
+            FakeLLM("groq", "openai/gpt-oss-20b"),
+        ]
+    )
+    client.app.state.gateway = gateway
+
+    response = client.get("/v1/llm/status")
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "providers": [
+            {
+                "name": "gemini",
+                "model": "gemini-3.8-flash",
+                "breaker_state": "closed",
+            },
+            {
+                "name": "groq",
+                "model": "openai/gpt-oss-20b",
+                "breaker_state": "closed",
+            },
+        ]
+    }
+
+
+def test_llm_status_reports_open_breaker(client):
+    gateway = LLMGateway(
+        [
+            FakeLLM("gemini", "gemini-3.8-flash"),
+            FakeLLM("groq", "openai/gpt-oss-20b"),
+        ]
+    )
+    for _ in range(3):
+        gateway.breakers["gemini"].failure()
+    client.app.state.gateway = gateway
+
+    response = client.get("/v1/llm/status")
+
+    assert response.status_code == 200
+    providers = response.json()["providers"]
+    assert providers[0]["breaker_state"] == "open"
+    assert providers[1]["breaker_state"] == "closed"
