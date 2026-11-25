@@ -31,7 +31,7 @@ def load_records():
 def measure():
     records = load_records()
     files = []
-    for path in sorted(RAW.rglob("*")):
+    for path in sorted((RAW / "ip-india-cgpdtm").rglob("*")):
         if not path.is_file() or path.suffix == ".part":
             continue
 
@@ -261,7 +261,6 @@ Guides student inventors through Indian patent basics: patentability, procedure 
 
 - https://ipindia.gov.in/
 - https://iprsearch.ipindia.gov.in/
-- https://github.com/fastapi/fastapi (tooling/reference corpus; licence verification pending)
 
 ## Terms I follow
 
@@ -276,7 +275,6 @@ Public law and office manuals, subject to the source's reuse conditions.
 ## Known gaps
 
 - IPRSearch access and reuse terms remain unverified; automated collection is excluded.
-- FastAPI repository licence must be checked before reuse in PatentPath answers.
 - Confirm the full target's sample specifications are collected before claiming it is complete.
 """
 
