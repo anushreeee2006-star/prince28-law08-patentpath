@@ -1,4 +1,4 @@
-﻿## D04 - Compose Health and Recovery Evidence
+## D04 - Compose Health and Recovery Evidence
 
 ### Migration
 - First run: records=20 inserted=20 updated=0 unchanged=0
@@ -357,3 +357,25 @@ Tested the Markdown parser using `data/raw/fastapi-fastapi/docs/de/llm-prompt.md
 - Ruff lint and format checks: PASS
 - Local CLI uses 127.0.0.1 to avoid Windows localhost resolution delay
 - Patent documents are not connected to the LLM yet; responses use general model knowledge
+
+### Step 5.1 - English vs Tamil tokens
+- Hi baseline: 219 tokens
+- English refund question: 227 tokens; message tokens = 8
+- Tamil refund question: 241 tokens; message tokens = 22
+- Tamil/English ratio: 2.75x
+
+### Step 5.2 - Questions the model cannot know
+- Patent grant question: PASS. The model said it was not sure and explained that grant depends on novelty, inventive step, industrial applicability, and compliance with the Indian Patents Act. It did not guarantee grant.
+- Off-topic cricket question: PASS. The model declined in one sentence: 'This question is unrelated to patents.'
+- Known-answer test 1 (Section 3(k)): MISS. The response text was empty; usage reported tokens_out=2048. Correctness could not be verified.
+- Known-answer test 2 (Form 1): Mostly correct. It correctly described Form 1 as the Indian patent application form and listed applicant/invention/inventor/signature/fee details. Caveat: saying submission automatically triggers the official filing date is simplified; filing date depends on applicable filing requirements.
+### Step 5.3 - Fallback and circuit breaker
+- Invalid Gemini model: PASS. First three calls tried Gemini, failed with 404, and fell back to Groq.
+- Fourth call: PASS. Circuit was open; Gemini was skipped and Groq answered.
+- Half-open retry after 30 seconds: PASS. Gemini was tried again, failed, and Groq answered.
+- Restored model: Gemini request returned an error during the verification call; normal Gemini success is not yet confirmed.
+- Restored Gemini model verification: PASS. Gemini answered successfully with fallback=False, 159 input tokens, 120 output tokens, and estimated cost ₹0.033031.
+- Restored Gemini model verification: PASS. Gemini answered successfully with fallback=False, 159 input tokens, 120 output tokens, and estimated cost ₹0.033031.
+### Step 5.4 - Usage and database verification
+- Neon SQL verification: PASS. Successful Gemini call, failed Gemini attempts, Groq fallback records, token counts, latency, estimated cost, and fallback flags are stored in llm_calls.
+- Recovery verified: restored Gemini model completed successfully with fallback=False.
