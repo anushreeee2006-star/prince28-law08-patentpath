@@ -7,6 +7,7 @@ from pydantic import ValidationError
 
 from patentpath.llm.doc_meta import DocMeta
 from patentpath.llm.extract import extract, parse_json
+from patentpath.llm.gateway import LLMUnavailable
 
 VALID_JSON = """
 {
@@ -87,7 +88,7 @@ async def test_extract_returns_validated_metadata():
         gateway,
         "Extract metadata as JSON.",
         "extract_v1",
-        "Patent filing guideline text.",
+        "Patent filing guideline text published in 2024.",
     )
 
     assert result.meta.doc_kind == "guideline"
@@ -107,7 +108,7 @@ async def test_extract_retries_after_invalid_json():
         gateway,
         "Extract metadata as JSON.",
         "extract_v1",
-        "Patent filing guideline text.",
+        "Patent filing guideline text published in 2024.",
     )
 
     assert result.meta.doc_kind == "guideline"
@@ -134,3 +135,58 @@ def test_extraction_prompt_mentions_all_metadata_fields():
 
     for field in required_fields:
         assert field in prompt, f"Prompt is missing field: {field}"
+
+
+@pytest.mark.asyncio
+async def test_extract_rejects_year_not_present_in_source():
+    gateway = StubGateway(VALID_JSON, VALID_JSON, VALID_JSON)
+
+    with pytest.raises(
+        ValueError,
+        match=r"year 2024 is not in the document",
+    ):
+        await extract(
+            gateway,
+            "Extract metadata as JSON.",
+            "extract_v1",
+            "This document explains filing requirements.",
+        )
+
+    assert len(gateway.calls) == 3
+
+
+@pytest.mark.asyncio
+async def test_extract_falls_back_when_provider_rejects_schema():
+    class SchemaRejectingGateway:
+        def __init__(self):
+            self.calls = []
+
+        async def generate(self, messages, **kwargs):
+            self.calls.append(kwargs)
+            if len(self.calls) == 1:
+                assert "response_format" in kwargs
+                raise LLMUnavailable(
+                    "gemini: HTTP 400: schema response format unsupported",
+                )
+
+            assert "response_format" not in kwargs
+            return SimpleNamespace(
+                text=VALID_JSON,
+                model="test-model",
+                tokens_in=10,
+                tokens_out=20,
+                cost_inr=0.01,
+            )
+
+    gateway = SchemaRejectingGateway()
+    result = await extract(
+        gateway,
+        "Extract metadata as JSON.",
+        "extract_v2",
+        "Patent filing guideline published in 2024.",
+        use_schema=True,
+    )
+
+    assert result.meta.year == 2024
+    assert result.attempts == 1
+    assert len(gateway.calls) == 2
