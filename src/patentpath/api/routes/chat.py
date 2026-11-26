@@ -9,11 +9,14 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
 from patentpath.api.deps import GatewayDependency, UsageDependency
+from patentpath.llm.classify import classify
 from patentpath.llm.gateway import LLMResult, LLMUnavailable
 
 router = APIRouter(prefix="/v1", tags=["Chat"])
 
 PROMPT_VERSION = "chat_system_v1"
+PERSONAL_ANSWER = "I can't know that from PatentPath's documents."
+OFF_TOPIC_ANSWER = "I can only help with Indian patent-related questions."
 
 
 class ChatRequest(BaseModel):
@@ -50,6 +53,24 @@ async def chat(
     gateway: GatewayDependency,
 ):
     """Answer a PatentPath question, optionally streaming."""
+    try:
+        label, _ = await classify(
+            gateway,
+            request.app.state.classify_prompt,
+            request.app.state.classify_prompt_version,
+            body.message,
+        )
+    except LLMUnavailable as exc:
+        raise HTTPException(
+            status_code=503,
+            detail="PatentPath's language models are temporarily unavailable.",
+        ) from exc
+
+    if label == "personal":
+        return {"answer": PERSONAL_ANSWER}
+    if label == "off_topic":
+        return {"answer": OFF_TOPIC_ANSWER}
+
     messages = [
         {"role": "system", "content": request.app.state.system_prompt},
         {"role": "user", "content": body.message},
