@@ -10,7 +10,7 @@ from patentpath.api.errors import (
     validation_exception_handler,
 )
 from patentpath.api.middleware import RequestLoggingMiddleware
-from patentpath.api.routes import chat, documents, health
+from patentpath.api.routes import chat, documents, health, llm_status
 from patentpath.config import Settings, get_settings
 from patentpath.db.llm_calls import make_recorder
 from patentpath.db.session import AsyncSessionLocal, engine
@@ -53,5 +53,6 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(health.router)
     app.include_router(documents.router)
     app.include_router(chat.router)
+    app.include_router(llm_status.router)
 
     return app

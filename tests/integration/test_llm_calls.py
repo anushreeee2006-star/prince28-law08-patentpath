@@ -7,9 +7,7 @@ from patentpath.db.models import LlmCall
 from patentpath.llm.gateway import FakeLLM, LLMError, LLMGateway
 
 
-async def test_gateway_calls_are_recorded_and_summed_per_day(
-    db_session_factory,
-):
+async def test_gateway_calls_are_recorded_and_summed_per_day(db_session_factory):
     async with db_session_factory() as session:
         await session.execute(LlmCall.__table__.delete())
         await session.commit()
@@ -40,10 +38,10 @@ async def test_gateway_calls_are_recorded_and_summed_per_day(
     )
 
     async with db_session_factory() as session:
-        total = await session.scalar(select(func.count()).select_from(LlmCall))
+        assert await session.scalar(select(func.count()).select_from(LlmCall)) == 3
+
         days = await UsageRepository(session).by_day()
 
-    assert total == 3
     assert len(days) == 1
     assert days[0]["calls"] == 3
     assert days[0]["errors"] == 1

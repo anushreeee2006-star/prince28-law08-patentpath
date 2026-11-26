@@ -431,3 +431,19 @@ Tested the Markdown parser using `data/raw/fastapi-fastapi/docs/de/llm-prompt.md
 - Initial Render deployment failed because `prompts/chat_system_v1.md` was missing from the Docker runtime image.
 - Fixed by copying the prompts directory into the Docker image.
 - Local Docker build and subsequent Render health check passed.
+
+### Latency baseline
+
+Measured from the Neon `llm_calls` table:
+
+- p50 latency: 875 ms (0.875 seconds)
+- p95 latency: 21,724.6 ms (21.72 seconds)
+- Day 1 target: p95 under 6 seconds
+- Status: Target not met; investigate slow calls and fallback latency.
+
+## Stretch 2 - Circuit breaker status API
+
+- Added GET /v1/llm/status to report provider name, model, and breaker state.
+- Added two FakeLLM tests for closed and open breaker states.
+- Live experiment: invalid Gemini model caused primary failures; Groq fallback succeeded; the Gemini breaker reached half-open after the cooldown.
+- Restored the original Gemini model after the experiment.
