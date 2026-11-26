@@ -453,3 +453,16 @@ Day 9 Step 2: Classmate reviewed all 20 question labels. No unclear labels remai
 Day 9 Step 2: Classmate reviewed all 20 question labels and agreed. No label changes needed.
 
 Day 9: Classmate reviewed the revised test-set question 'What objections has the examiner recorded against my application?' and confirmed the personal label.
+
+## D09 - Prompt versions compared
+
+<!-- prompts:start -->
+
+| Prompt version | Correct | Accuracy | Invalid replies | Avg tokens in |
+|---|---|---|---|---|
+| classify_v1 | 17/20 | 85% | 0 | 44 |
+| classify_v2 | 20/20 | 100% | 0 | 273 |
+| classify_v3 | 20/20 | 100% | 0 | 421 |
+| classify_v4 | 20/20 | 100% | 0 | 325 |
+
+<!-- prompts:end -->
