@@ -543,3 +543,8 @@ Conclusion: content summaries/topics were accurate in this sample, but language 
 - Added unit coverage for provider HTTP 400 schema rejection and fallback to a request without schema enforcement.
 - Validation: `tests/unit/test_extract.py` passed (11 tests); full test suite passed (134 tests); Ruff lint and format checks passed.
 - Limitation: the extraction run reports success/failure and usage, but does not persist per-document repair counts or compare schema output against manually verified labels. Schema acceptance and extraction success do not by themselves prove metadata accuracy.
+
+- Follow-up paired comparison: ran `extract_v1` in default mode on the same 20 documents used for the `extract_v2` schema run.
+- `extract_v1`: 20 success, 0 repaired, 0 failed; every document succeeded on attempt 1.
+- `extract_v2` schema run: 20 success, 0 failed; database recorded 20 successful calls for 20 documents, with no repair/retry calls observed (repaired=0).
+- Paired comparison: repaired 0 vs 0; failed 0 vs 0. Both modes achieved 100% success on this 20-document sample.
