@@ -447,3 +447,5 @@ Measured from the Neon `llm_calls` table:
 - Added two FakeLLM tests for closed and open breaker states.
 - Live experiment: invalid Gemini model caused primary failures; Groq fallback succeeded; the Gemini breaker reached half-open after the cooldown.
 - Restored the original Gemini model after the experiment.
+
+Day 9 Step 2: Classmate reviewed all 20 question labels. No unclear labels remained.
