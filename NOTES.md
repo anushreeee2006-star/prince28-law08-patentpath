@@ -466,3 +466,19 @@ Day 9: Classmate reviewed the revised test-set question 'What objections has the
 | classify_v4 | 20/20 | 100% | 0 | 325 |
 
 <!-- prompts:end -->
+
+## D09 - Metadata extraction trial
+
+- Extraction prompt: `extract_v1`
+- Parsed documents available before trial: 1,712
+- Documents selected: 5
+- Successful extractions: 5
+- Failed extractions: 0
+- Success rate: 100%
+- Input tokens: 10,054
+- Output tokens: 592
+- Total estimated cost: INR 0.4271
+- Model: `gemini-3.5-flash-lite`
+- Attempts: 1 per document
+- Database verification: all 5 extraction records confirmed saved
+- Sample observation: selected documents were general FastAPI/OpenAPI technical documentation in multiple languages, not patent-specific documents.
