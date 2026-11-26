@@ -531,3 +531,15 @@ Compared 5 extracted FastAPI tutorial records against their source documents.
 - Language metadata was `other` for all 5 non-English records; expected language codes include `uk`, `fr`, `zh-Hant`, and `ja`.
 
 Conclusion: content summaries/topics were accurate in this sample, but language classification and multilingual text encoding/display need improvement. This was a manual sample check, not a full-dataset audit.
+
+### D09 stretch - Provider-enforced extraction schema
+
+- Added `extract_v2` with explicit schema-compliance instructions.
+- Ran `uv run python scripts/extract_metadata.py --limit 20 --schema`.
+- Result: 20 selected, 20 successful, 0 failed (100% success).
+- Usage: 37,877 input tokens, 2,489 output tokens; cost INR 1.6706.
+- Database recorded 20 successful `extract_v2` LLM calls, 0 errors and 0 provider fallbacks. No extra repair/retry LLM calls were observed in this run.
+- Compared with the earlier `extract_v1` batch: 55 successful documents, 0 repaired, 0 failed; that batch was a different size, so this is not a direct accuracy comparison.
+- Added unit coverage for provider HTTP 400 schema rejection and fallback to a request without schema enforcement.
+- Validation: `tests/unit/test_extract.py` passed (11 tests); full test suite passed (134 tests); Ruff lint and format checks passed.
+- Limitation: the extraction run reports success/failure and usage, but does not persist per-document repair counts or compare schema output against manually verified labels. Schema acceptance and extraction success do not by themselves prove metadata accuracy.

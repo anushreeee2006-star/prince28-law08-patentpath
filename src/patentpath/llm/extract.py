@@ -11,7 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from patentpath.db.models import Document, Page
 from patentpath.llm.doc_meta import DocMeta
-from patentpath.llm.gateway import LLMResult
+from patentpath.llm.gateway import LLMResult, LLMUnavailable
 
 
 def parse_json(text: str) -> dict[str, Any]:
@@ -72,9 +72,10 @@ async def extract(
     use_schema: bool = False,
 ) -> Extraction:
     """Ask the LLM for metadata and repair invalid JSON up to three attempts."""
+    source_text = text[:6000]
     messages = [
         {"role": "system", "content": prompt},
-        {"role": "user", "content": text[:6000]},
+        {"role": "user", "content": source_text},
     ]
     last_error = "No response received"
     last_result = None
@@ -102,16 +103,35 @@ async def extract(
                 }
             )
 
-        last_result = await gateway.generate(
-            messages,
-            purpose="extract",
-            prompt_version=version,
-            **options,
-        )
+        try:
+            last_result = await gateway.generate(
+                messages,
+                purpose="extract",
+                prompt_version=version,
+                **options,
+            )
+        except LLMUnavailable as exc:
+            if not use_schema or "HTTP 400" not in str(exc):
+                raise
+
+            # The provider rejected the schema format. Retry without it.
+            use_schema = False
+            options.pop("response_format", None)
+            last_result = await gateway.generate(
+                messages,
+                purpose="extract",
+                prompt_version=version,
+                **options,
+            )
 
         try:
             data = parse_json(last_result.text)
             meta = DocMeta.model_validate(data)
+            if meta.year is not None and not re.search(
+                rf"(?<!\d){meta.year}(?!\d)",
+                source_text,
+            ):
+                raise ValueError(f"year {meta.year} is not in the document")
         except (ValueError, ValidationError) as exc:
             last_error = explain(exc)
             messages.append({"role": "assistant", "content": last_result.text})
