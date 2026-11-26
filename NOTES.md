@@ -518,3 +518,16 @@ Day 9: Classmate reviewed the revised test-set question 'What objections has the
 - `/v1/usage`: 140 total calls; total cost INR 5.0777.
 - Usage on 2026-11-26: 55 calls, 0 errors, 0 fallbacks; 97,796 input tokens, 6,486 output tokens; INR 4.3276.
 - Some non-English titles and summaries displayed with encoding issues in the live response.
+
+
+### Manual verification of 5 extracted records
+
+Compared 5 extracted FastAPI tutorial records against their source documents.
+
+- All 5 summaries and topics were semantically consistent with the source.
+- French database testing and async testing records had accurate titles.
+- Ukrainian and Traditional Chinese records had garbled title/summary text in the API output.
+- Japanese dataclasses record had a garbled title in the API output.
+- Language metadata was `other` for all 5 non-English records; expected language codes include `uk`, `fr`, `zh-Hant`, and `ja`.
+
+Conclusion: content summaries/topics were accurate in this sample, but language classification and multilingual text encoding/display need improvement. This was a manual sample check, not a full-dataset audit.
