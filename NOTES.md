@@ -489,3 +489,32 @@ Day 9: Classmate reviewed the revised test-set question 'What objections has the
 - "Editor Support": extracted kind, year, and topics were reasonable; patent-specific fields were empty.
 - "Python Types परिचय": language, year, and topics were reasonable, but `doc_kind` was extracted as `other` even though the source explicitly calls itself a tutorial/refresher. Expected kind: `tutorial`.
 - Observation: the prompt may need to emphasize that explicit document-type descriptions such as "tutorial" should be preferred over `other`.
+
+
+### D09 prompt decisions and contract
+
+- Best router prompt: `classify_v4`, 20/20 (100%).
+- v2, v3 and v4 tied at 20/20; v4 used the fewest input tokens among them (325).
+- v4 removed v3's six examples and replaced them with a decision rule: general patent rules, forms and fees remain `docs` even when the question says "my application"; `personal` is only for private case records, live status or unavailable information.
+- No incorrect question or changed label remained in the 20-question test set.
+- v1 used 44 input tokens per question; v4 used 325 for the same accuracy improvement of 15 percentage points over v1.
+- DocMeta keeps `section` and `rule` for patentability/Section 3 issues, `form` for filing requirements, and `fee_category` for applicant fee categories.
+- Applicant-specific filing details and computed fees belong to a filing scenario, not a source document.
+- Constraints: summary max 300 characters; topics 1-6 items; section, rule, form, fee_category and topic lists max 8 values; each short value max 80 characters.
+
+### D09 extraction batch
+
+- Prompt: `extract_v1`; 55 successful, 0 repaired, 0 failed.
+- Parsed corpus available: 1,712; 1,657 remain without this extraction batch.
+- Valid but incorrect result: `Python Types` was classified as `other`; expected `tutorial`.
+- Total cost: INR 4.3276; average INR 0.0787 per document.
+- Combined usage: 97,796 input tokens and 6,486 output tokens (5-document trial plus 50-document batch).
+- SQL query initially used `kind`; corrected to `doc_kind` and verified the distribution.
+
+### Live Render verification
+
+- `/v1/documents?doc_kind=guideline&limit=3`: endpoint responded; 0 matching records.
+- `/v1/documents?doc_kind=tutorial&limit=3`: endpoint responded; 14 matching records, 3 returned.
+- `/v1/usage`: 140 total calls; total cost INR 5.0777.
+- Usage on 2026-11-26: 55 calls, 0 errors, 0 fallbacks; 97,796 input tokens, 6,486 output tokens; INR 4.3276.
+- Some non-English titles and summaries displayed with encoding issues in the live response.
