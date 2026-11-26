@@ -271,3 +271,38 @@ async def test_a_timeout_moves_on_but_a_dropped_connection_is_worth_one_retry():
         await provider_with(refuses).generate(ASK)
     assert not slow.value.retryable and "ReadTimeout" in str(slow.value)
     assert dropped.value.retryable
+
+
+async def test_provider_passes_response_format_to_the_http_request():
+    seen = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen["body"] = json.loads(request.content)
+        return httpx.Response(
+            200,
+            json={
+                "choices": [{"message": {"content": '{"label":"docs"}'}}],
+                "usage": {"prompt_tokens": 5, "completion_tokens": 3},
+            },
+        )
+
+    response_format = {"type": "json_object"}
+    reply = await provider_with(handler).generate(ASK, response_format=response_format)
+
+    assert reply.text == '{"label":"docs"}'
+    assert seen["body"]["response_format"] == response_format
+
+
+async def test_fake_llm_records_messages_and_options():
+    fake = FakeLLM("fake", script=["answer"])
+    response_format = {"type": "json_object"}
+
+    await fake.generate(ASK, temperature=0, response_format=response_format)
+
+    assert fake.seen == [
+        {
+            "messages": ASK,
+            "temperature": 0,
+            "response_format": response_format,
+        }
+    ]
