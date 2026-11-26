@@ -451,3 +451,5 @@ Measured from the Neon `llm_calls` table:
 Day 9 Step 2: Classmate reviewed all 20 question labels. No unclear labels remained.
 
 Day 9 Step 2: Classmate reviewed all 20 question labels and agreed. No label changes needed.
+
+Day 9: Classmate reviewed the revised test-set question 'What objections has the examiner recorded against my application?' and confirmed the personal label.
