@@ -114,6 +114,9 @@ def test_chat_returns_503_when_model_unavailable(client):
 
 def test_chat_stream_reports_midstream_error(client):
     class BrokenStreamGateway:
+        async def generate(self, messages, **options):
+            return type("FakeResult", (), {"text": "docs"})()
+
         async def stream(self, messages, **options):
             yield "Partial answer "
             raise LLMUnavailable("Provider failed mid-answer")

@@ -1,5 +1,7 @@
 """Tests for PatentPath API endpoints."""
 
+from patentpath.llm.gateway import FakeLLM
+
 
 def test_health_is_ok(client):
     response = client.get("/health")
@@ -158,3 +160,33 @@ def test_get_missing_document_page(client):
     assert response.status_code == 404
     assert response.headers["content-type"].startswith("application/problem+json")
     assert response.json()["title"] == "Not Found"
+
+
+def test_personal_question_is_classified_and_not_answered_by_chat(client):
+    fake = FakeLLM(script=["personal"])
+    client.app.state.gateway = fake
+
+    response = client.post(
+        "/v1/chat",
+        json={"message": "Will my patent be granted?", "stream": False},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["answer"] == ("I can't know that from PatentPath's documents.")
+    assert fake.calls == 1
+    assert fake.seen[0]["purpose"] == "classify"
+
+
+def test_off_topic_question_is_classified_and_not_answered_by_chat(client):
+    fake = FakeLLM(script=["off_topic"])
+    client.app.state.gateway = fake
+
+    response = client.post(
+        "/v1/chat",
+        json={"message": "Tell me a joke about cricket.", "stream": False},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["answer"] == ("I can only help with Indian patent-related questions.")
+    assert fake.calls == 1
+    assert fake.seen[0]["purpose"] == "classify"

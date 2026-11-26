@@ -15,6 +15,7 @@ from patentpath.config import Settings, get_settings
 from patentpath.db.llm_calls import make_recorder
 from patentpath.db.session import AsyncSessionLocal, engine
 from patentpath.llm.gateway import build_gateway
+from patentpath.llm.prompts import latest, read_prompt
 from patentpath.logging_setup import setup_logging
 
 
@@ -41,6 +42,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.state.system_prompt = (settings.prompts_dir / "chat_system_v1.md").read_text(
         encoding="utf-8"
     )
+
+    classify_version = latest(settings.prompts_dir, "classify")
+    app.state.classify_prompt_version = classify_version
+    app.state.classify_prompt = read_prompt(settings.prompts_dir, classify_version)
 
     app.add_middleware(RequestLoggingMiddleware)
 
