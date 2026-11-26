@@ -46,6 +46,36 @@ def load_testset() -> tuple[list[dict], int]:
     return examples, todo
 
 
+def print_confusion_table(results: list[dict], version: str) -> None:
+    """Print true-label to predicted-label counts for one prompt version."""
+    columns = (*LABELS, "invalid")
+    counts = {label: {predicted: 0 for predicted in columns} for label in LABELS}
+
+    for result in results:
+        true_label = result["label"]
+        predicted = result["got"]
+        if true_label in counts:
+            counts[true_label][predicted if predicted in columns else "invalid"] += 1
+
+    label_width = max(len("True label"), max(len(label) for label in LABELS))
+    column_width = max(8, *(len(label) for label in columns))
+
+    print(f"\\nConfusion table for {version} (true label ? answered label):")
+    print(
+        f"  {'True label':<{label_width}} | "
+        + " | ".join(f"{label:>{column_width}}" for label in columns)
+    )
+    print(f"  {'-' * label_width}-+-" + "-+-".join("-" * column_width for _ in columns))
+
+    for true_label in LABELS:
+        print(
+            f"  {true_label:<{label_width}} | "
+            + " | ".join(
+                f"{counts[true_label][predicted]:>{column_width}}" for predicted in columns
+            )
+        )
+
+
 def write_table(rows: list[dict], total: int) -> None:
     """Write or replace the prompt comparison table in NOTES.md."""
     table = [
@@ -152,6 +182,8 @@ async def run(args: argparse.Namespace) -> int:
                     f"(reply {miss['reply'][:40]!r}) "
                     f"{miss['question'][:60]!r}"
                 )
+
+            print_confusion_table(results, version)
 
             rows.append(
                 {
