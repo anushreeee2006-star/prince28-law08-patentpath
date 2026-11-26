@@ -482,3 +482,10 @@ Day 9: Classmate reviewed the revised test-set question 'What objections has the
 - Attempts: 1 per document
 - Database verification: all 5 extraction records confirmed saved
 - Sample observation: selected documents were general FastAPI/OpenAPI technical documentation in multiple languages, not patent-specific documents.
+
+### Manual review of extraction trial
+
+- Reviewed 2 of the 5 extracted documents against their source text.
+- "Editor Support": extracted kind, year, and topics were reasonable; patent-specific fields were empty.
+- "Python Types परिचय": language, year, and topics were reasonable, but `doc_kind` was extracted as `other` even though the source explicitly calls itself a tutorial/refresher. Expected kind: `tutorial`.
+- Observation: the prompt may need to emphasize that explicit document-type descriptions such as "tutorial" should be preferred over `other`.
