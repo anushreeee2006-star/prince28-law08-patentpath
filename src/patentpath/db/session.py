@@ -27,3 +27,21 @@ AsyncSessionLocal = async_sessionmaker(
 async def get_db():
     async with AsyncSessionLocal() as session:
         yield session
+
+
+def make_engine(settings):
+    """Create a database engine for an API or worker process."""
+    return create_async_engine(
+        to_asyncpg_url(settings.database_url),
+        pool_pre_ping=True,
+        echo=False,
+    )
+
+
+def make_sessionmaker(engine):
+    """Create sessions for the supplied engine."""
+    return async_sessionmaker(
+        bind=engine,
+        class_=AsyncSession,
+        expire_on_commit=False,
+    )
