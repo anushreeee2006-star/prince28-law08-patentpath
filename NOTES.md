@@ -548,3 +548,90 @@ Conclusion: content summaries/topics were accurate in this sample, but language 
 - `extract_v1`: 20 success, 0 repaired, 0 failed; every document succeeded on attempt 1.
 - `extract_v2` schema run: 20 success, 0 failed; database recorded 20 successful calls for 20 documents, with no repair/retry calls observed (repaired=0).
 - Paired comparison: repaired 0 vs 0; failed 0 vs 0. Both modes achieved 100% success on this 20-document sample.
+
+## D10 - Worker reliability, ingestion report and capacity
+
+### Docker Compose worker
+
+- Added the `worker` service using `arq patentpath.workers.main.WorkerSettings`.
+- Worker shares the application environment and `.env` configuration with the API.
+- Mounted `./data/raw` as read-only at `/app/data/raw`.
+- Worker depends on healthy PostgreSQL and Redis, and completed migrations.
+- `docker compose config --quiet` passed.
+- `docker compose up --build -d` succeeded; API and worker services started.
+
+### Worker-kill reliability test
+
+- Test job: `74fbf9dc5d1344688c2c888ad04d457d`.
+- Requested 20 items; completed 20, failed 0.
+- Processed 425 pages in approximately 5.7 minutes.
+- 7 items needed a second attempt.
+- Database retry history showed that unfinished work could be retried after the worker was stopped and restarted.
+- The exact queued/running freeze snapshot from the PDF was not captured.
+
+### Ingestion report
+
+- Generated `docs/INGEST_REPORT.md` from the database using `scripts/ingest_report.py`.
+- Documents counted by the report: 1,835 (excluding `doc_type='record'`).
+- Pages: 7,655.
+- Approximate text tokens: 11,413,883 (characters divided by 4; not a tokenizer measurement).
+- Parser failures: 0.
+- Documents with extracted records: 215; extraction failures: 0.
+- Items needing more than one try: 41.
+- Dead-letter items: 11, each gave up after 3 attempts.
+- Extraction usage: 236 model calls, 585,393 input tokens, 25,688 output tokens, estimated list-price cost INR 22.78.
+- Added worker recovery, retry and dead-letter observations under "What I learnt".
+
+### Capacity comparison
+
+- `docs/CAPACITY.md` estimates capacity from a measured 16-file sample: 946 page equivalents and 451 PDF pages.
+- Its 5,000-page target and estimated 1.98 million tokens use a different corpus scope and token-estimation method.
+- The ingestion report's 7,655 database pages are greater than the 5,000-page capacity target, but these figures are not a direct apples-to-apples comparison because the capacity report is based on the smaller measured file sample.
+- Report tokens are characters divided by 4; capacity tokens use estimated words multiplied by 1.3. Treat both as rough estimates, not exact model-token counts.
+- Follow-up: expand the capacity measurement to the same corpus represented in the database and use a consistent tokenizer before making a precise capacity or cost claim.
+
+### Incident notes
+
+- 11 items remain in the dead-letter list after 3 attempts.
+- Next investigation: inspect each item's stored error and source record, distinguish transient from permanent failures, and retry only items that are safe to retry.
+- Do not report the ingestion corpus as fully clean while dead-letter items remain.
+
+### D10 live Render verification
+
+- Filtered endpoint `/v1/documents?doc_kind=tutorial&limit=3` returned 3 records and reported 26 matching tutorials.
+- The response confirmed the `tutorial` filter was applied.
+- Multilingual records still showed `language: other`; language classification remains a known limitation.
+- `/v1/usage` reported 321 total calls and total cost INR 23.5346.
+- 2026-11-27: 161 calls, 0 errors, 0 fallbacks; INR 16.7863.
+- 2026-11-26: 75 calls, 0 errors, 0 fallbacks; INR 5.9982.
+- 2026-11-25: 85 calls, 22 errors and 22 fallbacks; INR 0.7501.
+
+### D10 PDF checklist - remaining records
+
+#### First run
+- First run: 20 documents queued. Exact duration and final done/skipped/failed counts were not separately recorded.
+- Pace: exact seconds per document not recorded. INGEST_RPM = 12; INGEST_CONCURRENCY = 2.
+
+#### Kill test
+- Queued: 20. Exact queued/running/done/failed snapshot at the kill was not captured.
+- After worker restart: 20 completed, 0 failed.
+- Pages processed: 425; total duration approximately 5.7 minutes.
+- 7 items needed a second attempt.
+- Exact recovery time after interruption was not separately recorded.
+- No duplicate documents were created: the database uses document identifiers and existing records are reused during retry.
+
+#### Live Render ingestion
+- Status: pending. Render OpenAPI currently does not expose `/v1/ingest`.
+- Live ingestion of 5 documents: not yet verified.
+- Request without admin token: not yet verified; check after the ingest route is deployed.
+- Next action: commit and push the staged ingest implementation, deploy the latest commit on Render, verify the route, then ingest 5 documents and record done/failed counts and failure reasons.
+
+
+### D10 final capacity figures and recovery evidence
+
+- Monday's capacity target: 5,000 pages and 1.98 million estimated tokens.
+- Actual ingestion report: 7,655 pages and approximately 11,413,883 characters/4 tokens.
+- Difference: 2,655 pages (53.1% above target) and approximately 9.43 million tokens (actual estimate about 5.76 times the projected estimate).
+- Important: the two token estimates use different methods (words × 1.3 versus characters ÷ 4), so this is an indicative comparison, not an exact tokenizer comparison.
+- Recovery incident: 40 documents and 61 pages restored from the historical Neon branch.
+- Recovery verification: SHA-256 matched for all 40/40 source files; database restoration was verified.

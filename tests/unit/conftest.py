@@ -3,9 +3,8 @@
 import pytest
 from fastapi.testclient import TestClient
 
-from patentpath.api.deps import get_repository
+from patentpath.api.deps import check_db, get_repo
 from patentpath.api.main import create_app
-from patentpath.api.routes import health
 from patentpath.config import Settings
 
 
@@ -83,33 +82,16 @@ class FakeDocumentRepository:
         return None
 
 
-class FakeDatabaseSession:
-    """Fake successful database session for readiness tests."""
-
-    async def __aenter__(self):
-        return self
-
-    async def __aexit__(self, exc_type, exc_value, traceback):
-        return None
-
-    async def execute(self, statement):
-        return None
-
-
 @pytest.fixture
-def client(monkeypatch, sample_records):
+def client(sample_records):
     """Create an API client with isolated test dependencies."""
-
-    app = create_app(Settings(app_env="ci"))
+    settings = Settings(app_env="ci", _env_file=None)
+    app = create_app(settings)
 
     repository = FakeDocumentRepository(sample_records)
-    app.dependency_overrides[get_repository] = lambda: repository
 
-    monkeypatch.setattr(
-        health,
-        "AsyncSessionLocal",
-        FakeDatabaseSession,
-    )
+    app.dependency_overrides[get_repo] = lambda: repository
+    app.dependency_overrides[check_db] = lambda: True
 
     with TestClient(app) as test_client:
         yield test_client
